@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Felicific Calculus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .game { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; align-items: start; }
+    .col { display: grid; gap: 18px; align-content: start; min-width: 0; }
+    @media (max-width: 960px) {
+      .game { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+      .col { display: contents; }
+      .c-seven { order: 1; } .c-stage { order: 2; } .c-scales { order: 3; } .c-ledger { order: 4; }
+    }
+    .roundbar { display: flex; gap: 6px; margin-bottom: 14px; }
+    .roundbar span { flex: 1; height: 6px; border-radius: 3px; background: var(--rule); }
+    .roundbar span.done { background: var(--right); }
+    .roundbar span.now { background: var(--accent); }
+    .role { font: 700 .78rem var(--f-body); letter-spacing: .12em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; display: inline-block; margin-bottom: 8px; background: rgba(220,177,95,.16); color: var(--accent); }
+    .seven { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; font-size: .95rem; }
+    .seven li { padding: 3px 10px; border-radius: 4px; color: #6f8a80; border-left: 3px solid transparent; }
+    .seven li.on { color: var(--ink); border-left-color: var(--accent); }
+    .seven li.new { background: rgba(220,177,95,.14); }
+    .seven li .n { display: inline-block; width: 1.4em; color: var(--accent); font-weight: 700; }
+    .opts { display: grid; gap: 10px; margin: 12px 0; }
+    .opt { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 14px; font-size: .95rem; }
+    .opt h4 { font: 700 1.1rem var(--f-display); margin: 0 0 4px; }
+    .opt .grp { margin: 2px 0; color: var(--ink-soft); }
+    .opt .grp b { color: var(--ink); font-weight: 600; }
+    .opt .grp b.k-poor { color: var(--poor); } .opt .grp b.k-rich { color: var(--rich); }
+    .scales svg { width: 100%; display: block; }
+    .lesson { margin-top: 12px; padding: 12px 16px; background: var(--paper-2); border-left: 3px solid var(--accent); border-radius: 6px; }
+    .score { font: 700 1.05rem var(--f-display); color: var(--ink-soft); margin: 0; }
+    .score b { color: var(--accent); font-size: 1.4rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .ledger td.v { font-weight: 600; }
+    .ledger tfoot td { font-weight: 700; border-bottom: none; }
+    .note { font-size: .88rem; color: var(--ink-soft); }
+    .slider { grid-template-columns: 12em 1fr 3.6em; }
+    @media (max-width: 520px) { .slider { grid-template-columns: 1fr 3.6em; } }
+  </style>
+</head>
+<body data-root="../" data-step="g-calculus">
+<main class="wrap">
+  <header class="page-head" style="padding-bottom:16px">
+    <p class="eyebrow"><a href="../play.html" style="text-decoration:none">Play and Learn</a> · Game 1</p>
+    <h1>The Felicific Calculus</h1>
+    <p class="lede">Bentham said a pleasure or a pain could be valued by seven circumstances. You will learn them one or two at a time, by choosing between acts and working out what each is worth. In the last round you turn the calculus on Bentham himself.</p>
+  </header>
+
+  <div class="game">
+    <div class="col">
+      <div class="card c-seven">
+        <h3 style="font-size:1.2rem;margin-bottom:4px">Bentham's seven circumstances</h3>
+        <blockquote class="q" style="margin-top:6px">“To a number of persons, with reference to each of whom the value of a pleasure or pain is considered, it will be greater or less, according to seven circumstances: . . . viz.</blockquote>
+        <ol class="seven" id="seven"></ol>
+        <p class="cite" style="margin:8px 0 0">Bentham, <em>Introduction to the Principles of Morals and Legislation</em>, quoted in Hunt &amp; Lautzenheiser, p. 130. Lit up: the circumstances you have used so far.</p>
+      </div>
+      <div class="card c-ledger">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+          <h3 style="font-size:1.2rem;margin:0">The felicity ledger</h3>
+          <p class="score">Points <b id="score">0</b> <span id="best" style="font-size:.9rem"></span></p>
+        </div>
+        <div class="table-scroll"><table class="data ledger" style="margin-top:8px">
+          <thead><tr><th>Round</th><th>Best act</th><th>Balance</th><th>Points</th></tr></thead>
+          <tbody id="ledger"><tr><td colspan="4" class="muted" style="text-align:left">Nothing entered yet.</td></tr></tbody>
+        </table></div>
+        <p class="note" style="margin:8px 0 0">Points: 2 for choosing right first time, 3 for a value right first time (1 if you get there later), 5 for the final test.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card c-stage">
+        <div class="roundbar" id="roundbar"></div>
+        <div id="stage"></div>
+      </div>
+      <div class="card scales c-scales">
+        <h3 style="font-size:1.2rem;margin-bottom:4px">The scales</h3>
+        <div id="scales"></div>
+        <p class="note" style="margin:6px 0 0">Bar = an act's balance: <span class="k-pleasure">pleasure</span> to the right of the line, <span class="k-pain">pain</span> to the left. It stays hidden until you have chosen.</p>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="../js/site.js"></script>
+<script src="../js/learn.js"></script>
+<script src="../js/econ.js"></script>
+<script>
+(function () {
+if (document.body.dataset.locked) return;
+const $ = id => document.getElementById(id);
+const F = v => { const x = Math.round(v * 100) / 100; return Econ.fmt(x, Number.isInteger(x) ? 0 : 2); };
+
+const SEVEN = [
+  ["intensity", "Its intensity."], ["duration", "Its duration."], ["certainty", "Its certainty or uncertainty."],
+  ["propinquity", "Its propinquity or remoteness."], ["fecundity", "Its fecundity."], ["purity", "Its purity."], ["extent", "Its extent.”"],
+];
+
+// ---------- describing an act ----------
+function lotTxt(l) {
+  const p = [`intensity ${l.intensity}`, `duration ${l.duration}`];
+  if (l.certainty !== undefined) p.push(`certainty ${l.certainty}`);
+  if (l.propinquity !== undefined) p.push(`propinquity ${l.propinquity}`);
+  if (l.fecundity) p.push(`fecundity: a ${l.fecundity.p} chance of a later pleasure worth ${l.fecundity.v}`);
+  if (l.impurity) p.push(`impurity: a ${l.impurity.p} chance of a later pain worth ${l.impurity.v}`);
+  if (l.pure) p.push(`pure: nothing follows`);
+  return `<span class="${l.pain ? "k-pain" : "k-pleasure"}">${l.pain ? "pain" : "pleasure"}</span> · ${p.join(" · ")}`;
+}
+function grpTxt(g) {
+  if (g.none) return `<div class="grp">Nothing changes for anyone.</div>`;
+  const cls = g.who === "poor" ? "k-poor" : g.who === "rich" ? "k-rich" : "";
+  const who = g.label ? `<b class="${cls}">${g.label}</b>${g.persons > 1 ? ", each" : ""}: ` : "";
+  return `<div class="grp">${who}${g.lots.map(lotTxt).join("<br>")}</div>`;
+}
+const value = o => Econ.act(o.groups).total;
+function optsHTML(opts) {
+  return `<div class="opts">${opts.map(o => `<div class="opt"><h4>${o.name}</h4>${o.groups.map(grpTxt).join("")}</div>`).join("")}</div>`;
+}
+
+// ---------- the scales (bar chart of each act's balance) ----------
+function scalesSVG(opts, show) {
+  const W = 420, rowH = 56, H = opts.length * rowH + 14;
+  const vals = opts.map(value);
+  const maxPos = Math.max(1, ...vals.filter(v => v > 0)), maxNeg = Math.max(0, ...vals.filter(v => v < 0).map(v => -v));
+  const left = 10, right = W - 64;
+  const x0 = maxNeg ? left + (right - left) * maxNeg / (maxPos + maxNeg) : left;
+  const sc = (right - left) / (maxPos + maxNeg);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance of pleasure for each act">`;
+  s += `<line x1="${x0}" x2="${x0}" y1="4" y2="${H - 4}" stroke="#b2c2b9"/>`;
+  opts.forEach((o, i) => {
+    const y = 8 + i * rowH, v = vals[i];
+    s += `<text x="${left}" y="${y + 14}" font-size="15" fill="#f2ebd9">${o.short || o.name}</text>`;
+    if (show) {
+      const w = Math.abs(v) * sc, x = v >= 0 ? x0 : x0 - w;
+      s += `<rect x="${x}" y="${y + 22}" width="${Math.max(w, 1.5)}" height="20" rx="3" fill="${v >= 0 ? "#7fd6b6" : "#ef8a8a"}"/>
+            <text x="${v >= 0 ? x + w + 6 : x0 + 6}" y="${y + 37}" font-size="15" font-weight="700" fill="${v >= 0 ? "#7fd6b6" : "#ef8a8a"}">${v > 0 ? "+" : ""}${F(v)}</text>`;
+    } else {
+      s += `<rect x="${x0}" y="${y + 22}" width="${(right - x0) * .5}" height="20" rx="3" fill="none" stroke="#2c5047" stroke-dasharray="5 4"/>
+            <text x="${x0 + 8}" y="${y + 37}" font-size="15" fill="#b2c2b9">?</text>`;
+    }
+  });
+  return s + "</svg>";
+}
+
+// ---------- rounds ----------
+// All numbers below are ours, on made-up scales: Bentham named the circumstances but gave no units.
+const ROUNDS = [
+  { title: "A free evening", role: "You are choosing for yourself", learn: ["intensity", "duration"],
+    story: "Start with the two circumstances that belong to the feeling itself: how strong it is (<strong>intensity</strong>) and how long it lasts (<strong>duration</strong>). For a pleasure that is sure and immediate, its value is intensity × duration.",
+    opts: [
+      { name: "An evening at the theatre", short: "Theatre", groups: [{ persons: 1, lots: [{ intensity: 6, duration: 2 }] }] },
+      { name: "A long walk in the country", short: "Walk", groups: [{ persons: 1, lots: [{ intensity: 2, duration: 5 }] }] },
+      { name: "A glass of fine wine", short: "Wine", groups: [{ persons: 1, lots: [{ intensity: 8, duration: 1 }] }] },
+    ],
+    best: 0,
+    why: ["6 × 2 = 12, the largest product.", "The walk lasts longest, but 2 × 5 = 10, less than the theatre's 6 × 2 = 12.", "The wine is the most intense, but it is over quickly: 8 × 1 = 8."],
+    num: { q: "How long would the walk (intensity 2) have to last to be worth exactly as much as the theatre?", answer: 6, unit: "units of duration",
+      misses: [{ when: v => v === 5, fb: "That is how long it lasts now, and 2 × 5 = 10 falls short of 12." },
+               { when: v => v === 12, fb: "12 is the theatre's value. What duration, times intensity 2, gives 12?" },
+               { when: v => v === 10, fb: "10 is the walk's value now, not a duration." }],
+      hint: "Solve 2 × duration = 6 × 2." },
+    lesson: "Intensity and duration trade off. A weak pleasure can match a strong one if it lasts long enough: 2 × 6 = 6 × 2. This is the root of the whole calculus: unlike pleasures are put on one scale and compared by size." },
+
+  { title: "A sure thing or a chance", role: "You are choosing for yourself", learn: ["certainty"],
+    story: "All three of these would happen this week, so timing does not differ yet. What differs is <strong>certainty</strong>: the chance the pleasure happens at all. In our model it is a probability, and value = intensity × duration × certainty.",
+    opts: [
+      { name: "A dinner with friends tonight, already arranged", short: "Dinner (sure)", groups: [{ persons: 1, lots: [{ intensity: 4, duration: 3, certainty: 1 }] }] },
+      { name: "A ticket in a lottery whose prize would pay for a holiday", short: "Lottery ticket", groups: [{ persons: 1, lots: [{ intensity: 10, duration: 6, certainty: 0.1 }] }] },
+      { name: "An invitation to a ball that may yet be called off", short: "Ball", groups: [{ persons: 1, lots: [{ intensity: 6, duration: 4, certainty: 0.75 }] }] },
+    ],
+    best: 2,
+    why: ["The dinner is certain, but small: 4 × 3 × 1 = 12. The ball is worth 6 × 4 × 0.75 = 18.", "The holiday would be the biggest pleasure (10 × 6 = 60), but it comes only one time in ten: 60 × 0.1 = 6.", "6 × 4 × 0.75 = 18, against 12 for the dinner and 6 for the ticket."],
+    num: { q: "What is the lottery ticket worth?", answer: 6,
+      misses: [{ when: v => v === 60, fb: "That is the holiday if you were sure to win. You forgot to multiply by certainty (0.1)." },
+               { when: v => v === 0.1, fb: "0.1 is the chance, not the value. Multiply it by intensity × duration." }],
+      hint: "intensity × duration × certainty." },
+    lesson: "A pleasure you may not get is worth less than the same pleasure made sure. In modern terms, certainty works like a probability weight: the ticket is valued at its expected pleasure, 6, not at the 60 you dream of." },
+
+  { title: "A feast now or a pension later", role: "You are choosing for yourself", learn: ["propinquity"],
+    story: "<strong>Propinquity</strong> is nearness in time. In our model it is a weight: 1 for a pleasure now, less for one far off. Here we count a pleasure years away at half (0.5). Value = intensity × duration × certainty × propinquity.",
+    opts: [
+      { name: "A feast tonight at the best inn in town", short: "Feast tonight", groups: [{ persons: 1, lots: [{ intensity: 7, duration: 2, certainty: 1, propinquity: 1 }] }] },
+      { name: "A pension promised for old age", short: "Pension later", groups: [{ persons: 1, lots: [{ intensity: 5, duration: 10, certainty: 0.8, propinquity: 0.5 }] }] },
+    ],
+    best: 1,
+    why: ["The feast is sure and immediate, but 7 × 2 × 1 × 1 = 14. The pension, even discounted twice, is worth 5 × 10 × 0.8 × 0.5 = 20.", "5 × 10 × 0.8 × 0.5 = 20, against 14 for the feast."],
+    num: { q: "What is the pension worth today?", answer: 20,
+      misses: [{ when: v => v === 50, fb: "That is intensity × duration only. The pension is uncertain (0.8) and remote (0.5): multiply by both." },
+               { when: v => v === 40, fb: "You multiplied by certainty but forgot propinquity (0.5)." },
+               { when: v => v === 25, fb: "You multiplied by propinquity but forgot certainty (0.8)." }],
+      hint: "intensity × duration × certainty × propinquity." },
+    lesson: "Distance in time shrinks a pleasure, but it does not settle the choice. A large, long pleasure can survive both doubt and delay. In modern terms, propinquity works like a discount factor." },
+
+  { title: "What comes after", role: "You are choosing for yourself", learn: ["fecundity", "purity"],
+    story: "A pleasure can bring more pleasures after it (<strong>fecundity</strong>), and it can be <strong>pure</strong> or mixed with pains that follow. Our model counts each as a chance times a size: add the chance of later pleasure, subtract the chance of later pain (impurity). All three acts are sure and immediate.",
+    opts: [
+      { name: "A night of heavy drinking", short: "Drinking", groups: [{ persons: 1, lots: [{ intensity: 8, duration: 3, impurity: { p: 0.9, v: 20 } }] }] },
+      { name: "An evening's game of push-pin", short: "Push-pin", groups: [{ persons: 1, lots: [{ intensity: 4, duration: 3, pure: true }] }] },
+      { name: "An evening learning to read", short: "Learning to read", groups: [{ persons: 1, lots: [{ intensity: 3, duration: 3, fecundity: { p: 0.5, v: 10 } }] }] },
+    ],
+    best: 2,
+    why: ["The drinking is the strongest pleasure tonight (8 × 3 = 24), but a 0.9 chance of a pain worth 20 follows: 24 − 18 = 6.", "Push-pin is pure: 4 × 3 = 12, nothing added, nothing taken away. Reading is worth 9 + 5 = 14.", "3 × 3 = 9, plus 0.5 × 10 = 5 of later pleasure, makes 14."],
+    num: { q: "What is the night of drinking worth, once what follows is counted?", answer: 6,
+      misses: [{ when: v => v === 24, fb: "That is the pleasure tonight. A pain is likely to follow (0.9 × 20). Subtract it." },
+               { when: v => v === 4, fb: "You subtracted the whole 20. The pain is only 90% likely: subtract 0.9 × 20 = 18." },
+               { when: v => v === 42, fb: "You added the pain that follows. A pain counts against the act." }],
+      hint: "intensity × duration − (chance of the pain × its size)." },
+    lesson: "Fecundity and purity look past the moment: an act is judged by everything it sets going. Notice that the calculus did not rank reading above push-pin because reading is nobler. It won on the numbers alone. Bentham said as much: “Prejudice apart, the game of push-pin is of equal value with the arts and sciences of music and poetry” (<em>The Rationale of Reward</em>, 1825)." },
+
+  { title: "The legislator's choice", role: "You are Bentham's legislator", learn: ["extent"],
+    story: "Now you judge a law, not your own evening. <strong>Extent</strong> is the number of persons affected. Work out each person's balance, multiply by how many are in that position, and add up across everyone, <span class='k-pain'>pains</span> counted against.",
+    opts: [
+      { name: "A tax on the richest man pays for a public well", short: "Tax for a well",
+        groups: [{ persons: 1, who: "rich", label: "The rich man", lots: [{ intensity: 6, duration: 5, pain: true }] },
+                 { persons: 40, who: "poor", label: "40 labourers", lots: [{ intensity: 1, duration: 2 }] }] },
+      { name: "A game law keeps the woods for the rich man's hunting", short: "Game law",
+        groups: [{ persons: 1, who: "rich", label: "The rich man", lots: [{ intensity: 5, duration: 10 }] },
+                 { persons: 40, who: "poor", label: "40 labourers", lots: [{ intensity: 1, duration: 1, pain: true }] }] },
+      { name: "Pass no law and leave the parish as it is", short: "No law", groups: [{ persons: 1, none: true, lots: [{ intensity: 0, duration: 0 }] }] },
+    ],
+    best: 0,
+    why: ["40 × (1 × 2) = 80 of pleasure, minus the rich man's pain of 6 × 5 = 30, leaves +50.", "The rich man gains a great deal (5 × 10 = 50), but 40 labourers each lose 1: 50 − 40 = +10, much less than the well's +50.", "Doing nothing is worth 0. Both laws do better than that; the well does best."],
+    num: { q: "What is the total balance of the tax for a well?", answer: 50,
+      misses: [{ when: v => v === -28, fb: "You counted one labourer (2 − 30). Extent: 40 of them gain 2 each." },
+               { when: v => v === 80, fb: "That is the labourers' pleasure. The rich man's pain (6 × 5) counts against it." },
+               { when: v => v === 110, fb: "You added the rich man's pain. Pains are subtracted." },
+               { when: v => v === 2, fb: "2 is one labourer's pleasure. Multiply by the 40 of them, then subtract the rich man's pain." }],
+      hint: "40 × (labourer's pleasure) − (rich man's pain)." },
+    lesson: "This is the step that makes the calculus a guide for the legislator. In <em>A Fragment on Government</em> (1776) Bentham wrote that “it is the greatest happiness of the greatest number that is the measure of right and wrong.” One man's pain of 30 is outweighed by forty small pleasures. Remember the move you just made: you <em>added</em> the labourers' pleasure to the rich man's pain as if they were the same stuff. The last round asks whether you can." },
+];
+const FINAL = { title: "All seven at once" };
+const TURN = { title: "Turning the calculus on Bentham" };
+const NR = ROUNDS.length + 2;
+
+let r = 0, score = 0, finalTries = 0, ledger = [];
+
+function seven(upto, fresh) {
+  const learned = new Set(ROUNDS.slice(0, upto + 1).flatMap(R => R.learn));
+  $("seven").innerHTML = SEVEN.map(([k, t], i) =>
+    `<li class="${learned.has(k) ? "on" : ""}${fresh.includes(k) ? " new" : ""}"><span class="n">${i + 1}.</span>${t}</li>`).join("");
+}
+function bar() {
+  $("roundbar").innerHTML = Array.from({ length: NR }, (_, i) => `<span class="${i < r ? "done" : i === r ? "now" : ""}"></span>`).join("");
+  $("score").textContent = score;
+}
+function drawLedger() {
+  if (!ledger.length) return;
+  const tot = ledger.reduce((s, e) => s + e.pts, 0);
+  $("ledger").innerHTML = ledger.map(e => `<tr><td>${e.n}</td><td>${e.act}</td>
+      <td class="v ${e.bal < 0 ? "k-pain" : "k-pleasure"}">${e.bal === null ? "—" : (e.bal > 0 ? "+" : "") + F(e.bal)}</td><td>${e.pts}</td></tr>`).join("") +
+    `<tr><td colspan="3"><strong>Total points</strong></td><td><strong>${tot}</strong></td></tr>`;
+}
+
+function play() {
+  bar();
+  if (r === ROUNDS.length) return finalRound();
+  if (r === ROUNDS.length + 1) return turnRound();
+  const R = ROUNDS[r];
+  seven(r, R.learn);
+  $("scales").innerHTML = scalesSVG(R.opts, false);
+  $("stage").innerHTML = `<span class="role">${R.role}</span><h2 style="font-size:1.7rem">${r + 1}. ${R.title}</h2>
+    <p>${R.story}</p>${optsHTML(R.opts)}<div id="q1"></div><div id="q2"></div><div id="after"></div>`;
+  let pts = 0;
+  Learn.mcq($("q1"), {
+    label: "Choose", q: "Which act yields the greatest balance of pleasure?",
+    choices: R.opts.map((o, i) => ({ t: o.name, ok: i === R.best, fb: R.why[i] })),
+    onSolve: first => {
+      if (first) pts += 2;
+      score += first ? 2 : 0; $("score").textContent = score;
+      $("scales").innerHTML = scalesSVG(R.opts, true);
+      Learn.num($("q2"), Object.assign({ label: "Work it out" }, R.num, {
+        onSolve: f2 => {
+          const p = f2 ? 3 : 1; pts += p; score += p;
+          ledger.push({ n: r + 1, act: R.opts[R.best].short || R.opts[R.best].name, bal: value(R.opts[R.best]), pts });
+          drawLedger(); bar();
+          $("after").innerHTML = `<div class="lesson">${R.lesson}</div>
+            <div class="actions"><button class="btn primary" id="next">${r + 1 < ROUNDS.length ? "Next round" : "Go to the final test"}</button></div>`;
+          $("next").onclick = () => { r++; play(); };
+          $("next").focus({ preventScroll: true });
+        } }));
+    },
+  });
+}
+
+// ---------- final test: a fresh law each attempt ----------
+function makeFinal() {
+  const n = Econ.pick([20, 30, 40]), i = Econ.pick([2, 3, 4]), d = Econ.pick([4, 8]);
+  const fv = Econ.pick([2, 4, 6]), mv = Econ.pick([5, 10]), li = Econ.pick([6, 8, 10]);
+  const cot = { intensity: i, duration: d, certainty: 0.5, propinquity: 0.5, fecundity: { p: 0.5, v: fv }, impurity: { p: 0.2, v: mv } };
+  const own = { intensity: li, duration: 5, certainty: 1, propinquity: 1, pain: true };
+  const opt = { name: "Drain the marsh", groups: [
+    { persons: n, who: "poor", label: `${n} cottagers`, lots: [cot] },
+    { persons: 1, who: "rich", label: "The landowner", lots: [own] }] };
+  return { n, i, d, fv, mv, li, cot, own, opt, total: value(opt) };
+}
+function finalRound() {
+  bar(); finalTries++;
+  seven(ROUNDS.length - 1, []);
+  const X = makeFinal(), { n, i, d, fv, mv, li } = X;
+  const base = i * d * 0.5 * 0.5, fec = 0.5 * fv, imp = 0.2 * mv, each = base + fec - imp, pain = li * 5;
+  $("scales").innerHTML = scalesSVG([{ name: "Drain the marsh", groups: X.opt.groups }], false);
+  $("stage").innerHTML = `<span class="role">Final test${finalTries > 1 ? ` · attempt ${finalTries}` : ""}</span>
+    <h2 style="font-size:1.7rem">${ROUNDS.length + 1}. ${FINAL.title}</h2>
+    <p>A law to drain a marsh. The cottagers would get better harvests, but not for some years (propinquity 0.5) and only if the drainage works (certainty 0.5). Better harvests may bring more (fecundity); the digging may bring fever (impurity). The landowner loses land he enjoys, for certain and at once. New numbers each attempt, no hints.</p>
+    ${optsHTML([X.opt])}<div id="fq"></div><div id="fafter"></div>`;
+  const wrong = [
+    { v: n * (i * d + fec - imp) - pain, fb: "You left out certainty and propinquity: each cottager's harvest pleasure is multiplied by 0.5 and by 0.5." },
+    { v: n * (i * d * 0.5 + fec - imp) - pain, fb: "You applied only one of certainty and propinquity. Both are 0.5; multiply by each." },
+    { v: n * each, fb: "You forgot the landowner. His pain counts against the law." },
+    { v: n * each + pain, fb: "You added the landowner's pain. Pains are subtracted." },
+    { v: each - pain, fb: `That counts one cottager. Extent: there are ${n} of them.` },
+    { v: n * (base - imp) - pain, fb: "You left out fecundity: add 0.5 × the later pleasure for each cottager." },
+    { v: n * (base + fec) - pain, fb: "You left out impurity: subtract 0.2 × the fever for each cottager." },
+    { v: n * (base + fv - mv) - pain, fb: "You counted the later pleasure and pain in full. Each is only a chance: multiply by 0.5 and 0.2." },
+  ].filter(w => Math.abs(w.v - X.total) > 1e-9);
+  Learn.num($("fq"), {
+    label: "Pass this to earn the seal", q: "What is the law's total balance of pleasure over pain?",
+    answer: X.total, tol: 1e-6,
+    misses: wrong.map(w => ({ when: v => Math.abs(v - w.v) < 1e-6, fb: w.fb })),
+    hint: "Per cottager: intensity × duration × certainty × propinquity + 0.5 × later pleasure − 0.2 × fever. Times the cottagers, minus the landowner's pain.",
+    onSolve: first => {
+      $("scales").innerHTML = scalesSVG([{ name: "Drain the marsh", groups: X.opt.groups }], true);
+      const worked = `Each cottager: ${i} × ${d} × 0.5 × 0.5 + 0.5 × ${fv} − 0.2 × ${mv} = ${F(base)} + ${F(fec)} − ${F(imp)} = ${F(each)}. Times ${n} = ${F(n * each)}. Minus the landowner's ${li} × 5 = ${pain}: <strong>${X.total > 0 ? "+" : ""}${F(X.total)}</strong>. ${X.total > 0 ? "The law passes." : X.total < 0 ? "The law fails: the landowner's sure, immediate pain outweighs the cottagers' doubtful, distant gains." : "A dead heat."}`;
+      if (first) {
+        score += 5;
+        ledger.push({ n: ROUNDS.length + 1, act: "Drain the marsh", bal: X.total, pts: 5 }); drawLedger(); bar();
+        $("fafter").innerHTML = `<div class="lesson"><strong>All seven, right first time.</strong> ${worked}</div>
+          <div class="actions"><button class="btn primary" id="next">Last round: turn it on Bentham</button></div>`;
+        $("next").onclick = () => { r++; play(); };
+      } else {
+        $("fafter").innerHTML = `<div class="lesson">Right in the end. ${worked} The final test needs a first-try answer, so here is a fresh marsh.</div>
+          <div class="actions"><button class="btn primary" id="retry">New numbers</button></div>`;
+        $("retry").onclick = finalRound;
+      }
+    },
+  });
+}
+
+// ---------- the turn: what the calculus needs ----------
+function turnRound() {
+  bar();
+  seven(ROUNDS.length - 1, ["extent"]);
+  const well = ROUNDS[4].opts[0];
+  $("scales").innerHTML = scalesSVG([well], true);
+  $("stage").innerHTML = `<span class="role">You are the critic</span>
+    <h2 style="font-size:1.7rem">${NR}. ${TURN.title}</h2>
+    <p>Bentham hoped pleasures could be valued with numbers, so that we could “understand their value” (Hunt, p. 130). Go back to the tax for a well in round 5: the rich man's pain had intensity 6, each labourer's pleasure intensity 1. Every round today, you were <em>given</em> those numbers.</p>
+    <div id="t1"></div><div id="tslide"></div><div id="t2"></div><div id="t3"></div><div id="tafter"></div>`;
+  let pts = 0;
+  Learn.num($("t1"), {
+    label: "Work it out",
+    q: "Keep everything else in round 5 the same. At what intensity of the rich man's pain (duration still 5) would the tax for a well have a balance of exactly zero?",
+    answer: 16,
+    misses: [{ when: v => v === 6, fb: "6 is the intensity we gave you, and at 6 the balance is +50. How large must his pain be to cancel the labourers' 80?" },
+             { when: v => v === 80, fb: "80 is the labourers' total pleasure. The rich man's pain is intensity × duration 5." },
+             { when: v => v === 10, fb: "At 10 his pain is 10 × 5 = 50, still short of 80." }],
+    hint: "Labourers' total pleasure 40 × 2 = 80. Set intensity × 5 = 80.",
+    onSolve: first => {
+      const p = first ? 3 : 1; pts += p; score += p; $("score").textContent = score;
+      $("tslide").innerHTML = `<div class="lesson">At 16 the law is a dead heat; above 16 the legislator must reject it. Try it:
+        <div class="slider" style="margin-top:8px"><label for="ri">Rich man's intensity of pain</label><input id="ri" type="range" min="1" max="30" step="1" value="6"><output id="rio">6</output></div>
+        <p id="riv" style="margin:6px 0 0"></p>
+        <p style="margin:8px 0 0">Nothing in the world changed between 6 and 16: same tax, same well, same forty labourers. Only a number nobody can observe changed, and the verdict flipped with it.</p></div>`;
+      const upd = () => {
+        const I = +$("ri").value, opt = { name: "Tax for a well", groups: [{ ...well.groups[0], lots: [{ intensity: I, duration: 5, pain: true }] }, well.groups[1]] }, v = value(opt);
+        $("rio").textContent = I;
+        $("riv").innerHTML = `Balance: <strong class="${v < 0 ? "k-pain" : "k-pleasure"}">${v > 0 ? "+" : ""}${F(v)}</strong> → ${v > 0 ? "pass the law" : v < 0 ? "reject the law" : "indifferent"}`;
+        $("scales").innerHTML = scalesSVG([opt], true);
+      };
+      $("ri").oninput = upd; upd();
+      askSenior();
+    },
+  });
+  function askSenior() {
+    Learn.mcq($("t2"), {
+      label: "The objection",
+      q: "Nassau Senior (quoted in Hunt, p. 145) wrote that “the nature and urgency of each individual's wants are as various as the differences in individual character.” Hunt draws the conclusion: we cannot compare the utility different people get or lose. Which of the seven circumstances does this strike at?",
+      choices: [
+        { t: "Extent: adding one person's pleasure to another's", ok: true, fb: "Extent is the one step that adds across persons. If one man's “6” and another's “1” are not on a common scale, the labourers' 80 and the rich man's 30 cannot be set against each other, and the legislator's sum has no meaning." },
+        { t: "Intensity: a man cannot tell how strongly he feels", fb: "Senior did not deny that a man weighs his own pleasures; Hunt says Senior, like Bentham, saw economic behavior as maximizing utility (p. 144). The problem is comparing one man's intensity with another man's." },
+        { t: "Certainty: chances cannot be known", fb: "A chance is the same whoever faces it, and nothing in Senior's sentence is about chance. His point is that wants differ from person to person." },
+        { t: "Propinquity: the future cannot be weighed", fb: "Weighing a later pleasure against a present one happens inside one person. Senior's point is about differences between persons." },
+      ],
+      onSolve: first => { if (first) { pts += 2; score += 2; $("score").textContent = score; } askJevons(); },
+    });
+  }
+  function askJevons() {
+    Learn.mcq($("t3"), {
+      label: "What survives",
+      q: "Suppose Senior is right. What is left of the felicific calculus?",
+      choices: [
+        { t: "One person weighing his own pleasures, as in rounds 1 to 4", ok: true,
+          fb: "Rounds 1 to 4 never left one breast, and none needed a comparison between people. That half of the calculus became the economics of the single chooser: W. S. Jevons's <em>Theory of Political Economy</em> (1871) opens its chapter “Theory of Pleasure and Pain” with intensity, duration, certainty and propinquity, and builds marginal utility on them. The legislator's half, extent, is what Senior's objection takes away." },
+        { t: "Nothing at all: without extent the calculus is useless", fb: "Rounds 1 to 4 involved one person only, and none of them needed a comparison between people. That part stands even if Senior is right." },
+        { t: "All of it, if the legislator asks each person for his numbers", fb: "Asking gets each man's report on his own scale. Adding the reports still assumes one man's 6 means the same as another's 6. That is exactly the comparison Senior denies." },
+        { t: "All of it, because money prices put every pleasure in one unit", fb: "A price shows what a man will pay in money, and a pound is not worth the same to a labourer and to the richest man. That is Bentham's own point, and the subject of the next game." },
+      ],
+      onSolve: first => {
+        if (first) { pts += 2; score += 2; }
+        ledger.push({ n: NR, act: "The critique", bal: null, pts }); drawLedger(); bar();
+        finish();
+      },
+    });
+  }
+}
+
+function finish() {
+  r = NR; bar();
+  Ledger.complete("g-calculus", { score });
+  $("tafter").innerHTML = `<div class="lesson"><strong>Seal earned.</strong> Your felicity ledger closes at <strong>${score}</strong> points.</div>
+    <h3 style="margin-top:18px;font-size:1.4rem">Debrief</h3>
+    <p>Three things to be able to say without looking:</p>
+    <ol>
+      <li><strong>The calculus is bookkeeping.</strong> Each pleasure is valued by intensity × duration, discounted for doubt (certainty) and delay (propinquity), with what follows added or subtracted (fecundity, purity). Hunt describes the utilitarian person as acting “much like an accountant” (p. 129). You have just been that accountant.</li>
+      <li><strong>Extent turns a person's calculus into a legislator's.</strong> Summed over everyone, it gives “the greatest happiness of the greatest number” its arithmetic. In round 5 a law that pained one man and pleased forty passed because the forty small pleasures outweighed one larger pain. The conflict between them was netted out, not removed. That is one answer to the course question: on Bentham's books, opposed interests are added together into a single sum.</li>
+      <li><strong>The numbers are the weak point.</strong> No one can observe them, and the legislator's verdict can turn on them (16 versus 6). Senior's objection (Hunt, pp. 144–45) is that utilities cannot be compared between persons, which strikes at extent. What survives is the single chooser's calculus, which Jevons built into marginal utility in 1871.</li>
+    </ol>
+    <p>What lines up with modern economics: certainty works like a probability weight and propinquity like a discount factor, and the single chooser maximizing utility is the textbook consumer. What gets lost: the adding-up across persons that gave Bentham's calculus its reforming edge. The next game shows what that edge cut into: the purse of the richest man.</p>
+    <div class="actions"><a class="btn primary" href="purse.html">Next: The Labourer and the Richest Man →</a><button class="btn" id="again">Play again</button></div>`;
+  $("again").onclick = () => { r = 0; score = 0; finalTries = 0; ledger = []; $("ledger").innerHTML = `<tr><td colspan="4" class="muted" style="text-align:left">Nothing entered yet.</td></tr>`; play(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+}
+
+if (Ledger.isDone("g-calculus")) $("best").textContent = "· sealed already";
+play();
+})();
+</script>
+</body>
+</html>

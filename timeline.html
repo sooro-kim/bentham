@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bentham Timeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ordering puzzle */
+    .order { list-style: none; padding: 0; margin: 14px 0; display: grid; gap: 8px; max-width: 760px; }
+    .order li { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; background: var(--paper-2); border: 1.5px solid var(--rule); border-radius: 8px; padding: 10px 12px; cursor: grab; }
+    .order li.dragging { opacity: .4; }
+    .order li.ok { border-color: var(--right); }
+    .order li.no { border-color: var(--wrong); }
+    .order .pos { font: 700 1.1rem var(--f-display); color: var(--accent); text-align: center; }
+    .order .hint { display: block; font-size: .85rem; color: var(--wrong); margin-top: 3px; }
+    .order .yr { display: block; font-size: .85rem; color: var(--right); margin-top: 3px; font-weight: 700; }
+    .order .mv { display: flex; gap: 4px; }
+    .order .mv button { width: 34px; height: 30px; border-radius: 6px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; }
+    .order .mv button:hover { border-color: var(--accent); }
+
+    /* year slider (same as the Ricardo site) */
+    .tl { padding: 28px 24px 20px; user-select: none; }
+    .tl-track { position: relative; height: 72px; margin: 0 14px; cursor: pointer; touch-action: none; }
+    .tl-line { position: absolute; left: 0; right: 0; top: 30px; height: 4px; background: var(--rule); border-radius: 2px; }
+    .tl-fill { position: absolute; left: 0; top: 30px; height: 4px; background: var(--accent); border-radius: 2px; }
+    .tl-tick { position: absolute; top: 26px; width: 1px; height: 12px; background: var(--rule); }
+    .tl-tick.major { top: 22px; height: 20px; background: var(--ink-soft); }
+    .tl-label { position: absolute; top: 48px; transform: translateX(-50%); font-size: .8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+    .tl-dot { position: absolute; top: 25px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--paper); border: 2.5px solid var(--poor); }
+    .tl-dot.life { border-color: var(--accent); }
+    .tl-handle { position: absolute; top: 0; margin-left: -22px; width: 44px; display: flex; flex-direction: column; align-items: center; cursor: grab; outline: none; }
+    .tl-handle .flag { background: var(--ink); color: var(--bg); font: 700 .8rem var(--f-body); padding: 2px 7px; border-radius: 4px; font-variant-numeric: tabular-nums; }
+    .tl-handle .knob { width: 22px; height: 22px; border-radius: 50%; margin-top: 3px; background: var(--accent); border: 3px solid var(--paper); box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+    .tl-handle:focus-visible .knob { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .tl-controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; font-size: .85rem; color: var(--ink-soft); margin-top: 10px; }
+    .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 2.5px solid var(--poor); vertical-align: -1px; margin-right: 6px; }
+    .legend i.life { border-color: var(--accent); }
+    .year-view { display: grid; grid-template-columns: 220px 1fr; gap: 32px; margin-top: 28px; align-items: start; }
+    .year-big { font-family: var(--f-script); font-size: 5.5rem; line-height: 1; }
+    .year-age { font-family: var(--f-display); font-size: 1.1rem; color: var(--accent); font-weight: 600; }
+    .year-period { color: var(--ink-soft); font-size: .95rem; margin-top: 10px; }
+    .event { display: grid; grid-template-columns: 1fr 240px; gap: 24px; align-items: start; }
+    .event + .event { margin-top: 20px; }
+    .event.no-pic { grid-template-columns: 1fr; }
+    .event h3 { margin-bottom: 4px; }
+    .event .kind { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .event .kind.life { color: var(--accent); } .event .kind.world { color: var(--poor); }
+    .event figure img { width: 100%; max-height: 240px; object-fit: cover; border-radius: 4px; border: 1px solid var(--rule); filter: sepia(.15); }
+    .event figure img.contain { object-fit: contain; background: var(--paper-2); }
+    #events { animation: fade .25s ease; }
+    @keyframes fade { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @media (max-width: 760px) {
+      .year-view { grid-template-columns: 1fr; gap: 12px; } .year-big { font-size: 4rem; }
+      .event { grid-template-columns: 1fr; } .tl-label.minor { display: none; }
+    }
+  </style>
+</head>
+<body data-step="timeline">
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Timeline</p>
+    <h1>Bentham's world, 1748–1832</h1>
+    <p class="lede">First put his life in order. No dates are given: use what you know and what follows from what. When the order is right, the year-by-year timeline opens, with his life set beside the world around him.</p>
+  </header>
+
+  <section class="card" id="puzzle">
+    <h2 style="font-size:1.6rem">Step 1 · Put it in order</h2>
+    <p class="muted mb-0">Drag the cards, or use the arrows. Earliest at the top. Then check.</p>
+    <ol class="order" id="order"></ol>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn primary" id="check">Check the order</button><span class="muted" id="tries"></span></div>
+    <div class="feedback" id="pfb"></div>
+  </section>
+
+  <section id="explore" class="hidden" style="margin-top:40px">
+    <h2 style="font-size:1.6rem">Step 2 · Explore year by year</h2>
+    <p class="muted">Drag the marker, click the line, or use the arrow keys.</p>
+    <div class="card tl">
+      <div class="tl-track" id="track">
+        <div class="tl-line"></div><div class="tl-fill" id="fill"></div><div id="marks"></div>
+        <div class="tl-handle" id="handle" role="slider" tabindex="0" aria-label="Year" aria-valuemin="1748" aria-valuemax="1832" aria-valuenow="1748">
+          <span class="flag" id="flag">1748</span><span class="knob"></span>
+        </div>
+      </div>
+      <div class="legend"><span><i class="life"></i>Bentham's life &amp; works</span><span><i></i>The world around him</span></div>
+      <div class="tl-controls">
+        <button class="btn small" id="prevEv">‹ Previous event</button>
+        <button class="btn small" id="play">▶ Play</button>
+        <button class="btn small" id="nextEv">Next event ›</button>
+      </div>
+    </div>
+    <section class="year-view">
+      <div><div class="year-big" id="yearBig">1748</div><div class="year-age" id="yearAge"></div><div class="year-period" id="yearPeriod"></div></div>
+      <div id="events"></div>
+    </section>
+  </section>
+  <p class="cite" style="margin-top:28px">Based on Hunt &amp; Lautzenheiser, ch. 6, pp. 129–139, and ch. 7, pp. 153–154. Dates not in Hunt follow the <em>Stanford Encyclopedia of Philosophy</em> entry “Jeremy Bentham” and Wikipedia. See <a href="sources.html">Sources</a>.</p>
+</main>
+<script src="js/site.js"></script>
+<script src="js/learn.js"></script>
+<script>
+// ---------------- Step 1: ordering ----------------
+const CARDS = [
+  { y: 1748, t: "Born in Houndsditch, London, the son of an attorney.", hint: "Everything begins here." },
+  { y: 1763, t: "Goes back to Oxford, still a teenager, to hear William Blackstone lecture on the laws of England.", hint: "He had to hear Blackstone before he could attack him in print." },
+  { y: 1776, t: "Publishes, anonymously, a short attack on Blackstone whose preface makes “the greatest happiness of the greatest number” the measure of right and wrong.", hint: "This short attack came before the long, systematic treatise on morals and legislation." },
+  { y: 1780, t: "Prints An Introduction to the Principles of Morals and Legislation: “two sovereign masters, pain and pleasure.”", hint: "Hunt says Bentham turned to economic questions about six years after this book." },
+  { y: 1787, t: "Writing in White Russia, argues against legal ceilings on interest, and against Adam Smith, in Defence of Usury.", hint: "This belongs to his turn to economic questions, which came after the Introduction." },
+  { y: 1801, t: "Writes that he has no “horror, sentimental or anarchical, of the hand of government.”", hint: "This change of mind came after his laissez-faire years, which Hunt places in the eighteenth century." },
+  { y: 1817, t: "Prints a Plan of Parliamentary Reform: votes for literate men, equal districts, annual elections, the secret ballot.", hint: "His democratic program came after he met James Mill, years after he first welcomed the hand of government." },
+  { y: 1832, t: "Dies the day before the Great Reform Act receives the royal assent.", hint: "Last." },
+];
+const list = document.getElementById("order");
+let order = Learn.shuffle(CARDS.map((_, i) => i));
+while (order.every((v, i) => v === i)) order = Learn.shuffle(order);
+let tries = 0, solved = Ledger.isDone("timeline");
+
+function drawOrder(marks) {
+  list.innerHTML = order.map((ci, pos) => {
+    const c = CARDS[ci], m = marks ? (marks[pos] ? "ok" : "no") : "";
+    return `<li draggable="${!solved}" data-pos="${pos}" class="${m}"><span class="pos">${pos + 1}</span>
+      <span>${c.t}${m === "no" ? `<span class="hint">${c.hint}</span>` : ""}${solved ? `<span class="yr">${c.y}</span>` : ""}</span>
+      ${solved ? "" : `<span class="mv"><button data-mv="-1" aria-label="Move up">↑</button><button data-mv="1" aria-label="Move down">↓</button></span>`}</li>`;
+  }).join("");
+  list.querySelectorAll("li").forEach(li => {
+    const pos = +li.dataset.pos;
+    li.querySelectorAll("[data-mv]").forEach(b => b.onclick = () => move(pos, pos + +b.dataset.mv));
+    li.addEventListener("dragstart", e => { li.classList.add("dragging"); e.dataTransfer.setData("text/plain", pos); });
+    li.addEventListener("dragend", () => li.classList.remove("dragging"));
+    li.addEventListener("dragover", e => e.preventDefault());
+    li.addEventListener("drop", e => { e.preventDefault(); move(+e.dataTransfer.getData("text/plain"), pos); });
+  });
+}
+function move(from, to) {
+  if (solved || to < 0 || to >= order.length || from === to) return;
+  const [x] = order.splice(from, 1); order.splice(to, 0, x); drawOrder();
+}
+document.getElementById("check").onclick = () => {
+  if (solved) return;
+  tries++;
+  const marks = order.map((ci, pos) => ci === pos);
+  const n = marks.filter(Boolean).length, fb = document.getElementById("pfb");
+  document.getElementById("tries").textContent = `Attempt ${tries}`;
+  if (n === CARDS.length) {
+    solved = true; drawOrder(marks);
+    fb.className = "feedback show good";
+    fb.innerHTML = `<strong>All eight in order${tries === 1 ? ", first time" : ""}.</strong> Notice the shape: a lawyer's quarrel with Blackstone first, then the principle of utility, and only then economics. The early economics trusted the market; by 1801 Bentham welcomed the hand of government, and his last years went to democratic reform. The dates are now shown, and the full timeline is open below.`;
+    Ledger.complete("timeline");
+    openExplore(true);
+  } else {
+    drawOrder(marks);
+    fb.className = "feedback show bad";
+    fb.innerHTML = `<strong>${n} of ${CARDS.length} in the right place.</strong> Each misplaced card now carries a clue. Rearrange and check again.`;
+  }
+};
+drawOrder(solved ? order.map(() => true) : null);
+if (solved) { order = CARDS.map((_, i) => i); drawOrder(order.map(() => true)); document.getElementById("check").disabled = true; }
+
+// ---------------- Step 2: the year-by-year timeline ----------------
+const START = 1748, END = 1832;
+// kind: "life" = Bentham's own life and works; "world" = events around him.
+// img: file in images/; fit: "contain" shows the whole picture instead of a crop.
+const EVENTS = {
+  1748: [{ kind: "life", title: "Born in London", text: "Jeremy Bentham is born on 15 February in Houndsditch, London. His father, Jeremiah Bentham, is an attorney.", img: "bentham.jpg" }],
+  1755: [{ kind: "life", title: "Westminster School", text: "At seven he starts at Westminster School, where he stays until 1760." }],
+  1760: [{ kind: "life", title: "Oxford at twelve", text: "He enters The Queen's College, Oxford, at the age of twelve. He takes his BA in 1763 and his MA in 1766." }],
+  1763: [{ kind: "life", title: "Blackstone's lectures", text: "In 1763–64 he returns to Oxford to hear William Blackstone lecture on the laws of England.", img: "blackstone.jpg" }],
+  1765: [{ kind: "world", title: "Blackstone's Commentaries", text: "The Commentaries on the Laws of England begin to appear (1765–69). Bentham's first book will be an attack on Blackstone." }],
+  1769: [{ kind: "life", title: "Called to the bar, and the principle of utility", text: "He is called to the bar, but his legal career lasts one brief and he never practises. The same year he finds the principle of utility in Hume, Helvétius, and Beccaria." }],
+  1776: [
+    { kind: "life", title: "A Fragment on Government", text: "Published anonymously, an attack on Blackstone. Its preface: “it is the greatest happiness of the greatest number that is the measure of right and wrong.”" },
+    { kind: "world", title: "The Wealth of Nations, and American independence", text: "Adam Smith publishes the Wealth of Nations, and the American colonies declare independence. The early Bentham will accept Smith's case that a free market sends resources where they are most productive.", img: "smith.png" }],
+  1780: [{ kind: "life", title: "The Introduction is printed", text: "An Introduction to the Principles of Morals and Legislation: “Nature has placed mankind under the governance of two sovereign masters, pain and pleasure.” Hunt calls it his most influential work for nineteenth-century economic theory." }],
+  1781: [{ kind: "life", title: "“Utilitarian”", text: "He coins the word “utilitarian” (the Stanford Encyclopedia says “in a dream”)." }],
+  1786: [{ kind: "life", title: "To White Russia", text: "In 1786–87 he visits his brother Samuel at Krichev, where Samuel manages projects for Prince Potemkin. Hunt dates Bentham's turn to economic questions to about this time. In letters home to his father he first outlines the Panopticon." }],
+  1787: [{ kind: "life", title: "Defence of Usury", text: "Written in Russia: an argument against legal ceilings on interest, addressed to Adam Smith, who had supported a legal maximum rate." }],
+  1789: [
+    { kind: "world", title: "Revolution in France", text: "The storming of the Bastille. In England, the memory of the French Revolution will make wealthy men fear workers' combinations and radical writers (Hunt ch. 7, p. 153).", img: "bastille.png" },
+    { kind: "life", title: "The Introduction is published", text: "Printed in 1780, the Introduction is now published, with additions." }],
+  1791: [{ kind: "life", title: "Panopticon", text: "Panopticon; or, The Inspection House: a circular building in which one unseen inspector can watch every cell. The architect Willey Reveley draws the plan.", img: "panopticon.jpg", fit: "contain" }],
+  1792: [{ kind: "life", title: "Citizen of France", text: "In September France makes him an honorary citizen." }],
+  1794: [{ kind: "life", title: "The Penitentiary Act", text: "The Panopticon wins government support. Bentham receives £2,000 for preliminary work." }],
+  1798: [{ kind: "world", title: "Malthus's Essay on Population", text: "Thomas Robert Malthus publishes his Essay on Population. Hunt notes that Malthus was one of the few economists of the time who doubted that supply would always equal demand in a free market (p. 132).", img: "malthus.png" }],
+  1799: [
+    { kind: "world", title: "The Combination Act", text: "After a decade of labour unrest, Parliament outlaws workers' combinations. Hunt says the Act dealt the labour movement “a very severe blow” for twenty-five years (ch. 7, pp. 153–154)." },
+    { kind: "life", title: "The Millbank site", text: "In November he buys a site at Millbank for the Panopticon, for £12,000." }],
+  1801: [{ kind: "life", title: "The hand of government", text: "By now, Hunt shows, Bentham has changed his mind: “I have not . . . any horror, sentimental or anarchical, of the hand of government.” Saving that sits idle and great inequality are reasons for the state to act." }],
+  1803: [
+    { kind: "life", title: "The Panopticon abandoned", text: "The Addington administration drops the project. (The Stanford Encyclopedia says Bentham admitted defeat in 1802.)" },
+    { kind: "world", title: "Say's Treatise", text: "Jean-Baptiste Say's Treatise on Political Economy first appears. Say argues that utility, not labour, is the source of value. He also held that a general glut is impossible, the doctrine that came to be called Say's law. Hunt counts the later Bentham among those who rejected it (p. 137).", img: "say.png" }],
+  1808: [{ kind: "life", title: "Meets James Mill", text: "Late in the year he meets James Mill. In 1809–10 he drafts plans for parliamentary reform." }],
+  1811: [{ kind: "world", title: "Machine breaking spreads", text: "With combinations outlawed, workers have no legal means of resistance. Machine breaking spreads, and from 1811 onward, Hunt writes, the rebellion “grew rapidly in numbers and intensity” (ch. 7, p. 154).", img: "luddite.png" }],
+  1812: [{ kind: "life", title: "Compensation", text: "He settles for £23,000 compensation for the Panopticon. His initial claim had been nearly £700,000. Millbank Penitentiary is built on the site instead.", img: "millbank.jpg" }],
+  1817: [
+    { kind: "life", title: "Plan of Parliamentary Reform", text: "Printed in 1817, published in 1818: votes for all literate men, equal electoral districts, annual elections, and the secret ballot, which he thought most important. Soon after, he commits himself to republicanism." },
+    { kind: "world", title: "Ricardo's Principles", text: "David Ricardo publishes On the Principles of Political Economy and Taxation. Hunt reads Bentham, Say, and Senior as the writers who helped economics abandon the labour theory of value that Smith and Ricardo had used (p. 127).", img: "ricardo.png" }],
+  1819: [{ kind: "world", title: "Peterloo", text: "“The Massacre of Peterloo,” as George Cruikshank titled his print that year. Hunt lists 1819 among the years when working-class rebellion flared up again (ch. 7, p. 154).", img: "peterloo.png" }],
+  1822: [{ kind: "life", title: "The Constitutional Code", text: "He begins drafting a Constitutional Code. Only the first of its three volumes will appear in his lifetime." }],
+  1823: [{ kind: "life", title: "The Westminster Review", text: "In December he funds the start of the Westminster Review, founded with James Mill." }],
+  1825: [
+    { kind: "world", title: "Senior's Oxford chair", text: "Nassau Senior is appointed to the first chair of political economy at Oxford (Hunt p. 138). He will later deny the two premises behind Bentham's case for redistribution.", img: "senior.png" },
+    { kind: "life", title: "The Rationale of Reward", text: "“Prejudice apart, the game of push-pin is of equal value with the arts and sciences of music and poetry.”" }],
+  1826: [{ kind: "life", title: "University College London", text: "The reformers he works with form the nucleus of University College London. He is called its “spiritual founder,” though his direct part in the founding was limited." }],
+  1830: [
+    { kind: "world", title: "“The frightful autumn of 1830”", text: "Senior's phrase for “the fires and insurrections which terrified the south of England.” Hunt says they changed Senior's views on the poor and on the poor laws (p. 139).", img: "swing.jpg" },
+    { kind: "life", title: "Constitutional Code, volume 1", text: "The first volume appears, the only one published in his lifetime." }],
+  1832: [
+    { kind: "life", title: "Death, and the Auto-icon", text: "Bentham dies on 6 June, aged 84, at Queen Square Place, Westminster. His will, dated 30 May, directs that his body be dissected and preserved. His skeleton, dressed in his clothes and seated with a wax head, is the Auto-icon, now at the entrance of the UCL Student Centre.", img: "autoicon.jpg" },
+    { kind: "world", title: "The Great Reform Act", text: "The Reform Act receives the royal assent on 7 June, the day after his death." }],
+};
+const PERIODS = [[1748, 1768, "Prodigy and law student"], [1769, 1785, "Blackstone and the principle of utility"], [1786, 1800, "Usury, the Panopticon, and laissez-faire"], [1801, 1822, "The hand of government, and reform"], [1823, 1832, "Radical democrat; the last years"]];
+const YEARS = Object.keys(EVENTS).map(Number).sort((a, b) => a - b);
+let built = false;
+function openExplore(scroll) {
+  const ex = document.getElementById("explore");
+  Learn.open(ex, false);
+  if (scroll) setTimeout(() => ex.scrollIntoView({ behavior: "smooth", block: "start" }), 600);
+  if (!built) { built = true; buildTimeline(); }
+}
+if (solved) openExplore(false);
+
+function buildTimeline() {
+  const track = document.getElementById("track"), handle = document.getElementById("handle");
+  const fill = document.getElementById("fill"), flag = document.getElementById("flag"), marks = document.getElementById("marks");
+  const pct = y => (y - START) / (END - START) * 100;
+  for (let y = START; y <= END; y++) {
+    const major = y % 10 === 0 || y === START || y === END;
+    const fifth = y % 5 === 0;
+    if (major || fifth) marks.insertAdjacentHTML("beforeend", `<div class="tl-tick${major ? " major" : ""}" style="left:${pct(y)}%"></div>`);
+    // keep labels apart: skip 1750 (next to 1748) and 1830 (next to 1832)
+    if ((major || fifth) && y !== 1750 && y !== 1830) marks.insertAdjacentHTML("beforeend", `<div class="tl-label${major ? "" : " minor"}" style="left:${pct(y)}%">${y}</div>`);
+  }
+  YEARS.forEach(y => marks.insertAdjacentHTML("beforeend", `<div class="tl-dot${EVENTS[y].some(e => e.kind === "life") ? " life" : ""}" style="left:${pct(y)}%" title="${y}"></div>`));
+
+  let year = START, lastRendered = null;
+  function setYear(y) {
+    year = Math.max(START, Math.min(END, Math.round(y)));
+    handle.style.left = fill.style.width = pct(year) + "%";
+    flag.textContent = year;
+    handle.setAttribute("aria-valuenow", year);
+    handle.setAttribute("aria-valuetext", EVENTS[year] ? `${year}: ${EVENTS[year].map(e => e.title).join("; ")}` : `${year}`);
+    if (year !== lastRendered) render();
+  }
+  function render() {
+    lastRendered = year;
+    document.getElementById("yearBig").textContent = year;
+    document.getElementById("yearAge").textContent = year === START ? "Bentham is born" : `Bentham is about ${year - START}`;
+    const p = PERIODS.find(([a, b]) => year >= a && year <= b);
+    document.getElementById("yearPeriod").textContent = p ? p[2] : "";
+    const box = document.getElementById("events");
+    box.style.animation = "none"; box.offsetHeight; box.style.animation = "";
+    const evs = EVENTS[year];
+    if (!evs) {
+      const prev = [...YEARS].reverse().find(y => y < year), next = YEARS.find(y => y > year);
+      box.innerHTML = `<div class="card"><p class="muted">No major event is recorded here for ${year}. The nearest milestones:</p>
+        ${prev ? `<button class="btn small" data-go="${prev}" style="margin:4px 6px 0 0">‹ ${prev}: ${EVENTS[prev][0].title}</button>` : ""}
+        ${next ? `<button class="btn small" data-go="${next}" style="margin-top:4px">${next}: ${EVENTS[next][0].title} ›</button>` : ""}</div>`;
+      box.querySelectorAll("[data-go]").forEach(b => b.onclick = () => setYear(+b.dataset.go));
+      return;
+    }
+    box.innerHTML = evs.map(e => `<article class="card event${e.img ? "" : " no-pic"}"><div>
+        <div class="kind ${e.kind}">${e.kind === "life" ? "Bentham's life" : "The world"}</div><h3>${e.title}</h3><p class="mt-0 mb-0">${e.text}</p></div>
+        ${e.img ? `<figure><img src="images/${e.img}"${e.fit ? ` class="${e.fit}"` : ""} alt="${e.title}"></figure>` : ""}</article>`).join("");
+  }
+  function yearFromEvent(ev) { const r = track.getBoundingClientRect(); return START + (ev.clientX - r.left) / r.width * (END - START); }
+  let dragging = false;
+  track.addEventListener("pointerdown", ev => { dragging = true; track.setPointerCapture(ev.pointerId); stop(); setYear(yearFromEvent(ev)); handle.focus(); });
+  track.addEventListener("pointermove", ev => { if (dragging) setYear(yearFromEvent(ev)); });
+  track.addEventListener("pointerup", () => dragging = false);
+  track.addEventListener("pointercancel", () => dragging = false);
+  const nextEvent = () => { const n = YEARS.find(y => y > year); if (n) setYear(n); };
+  const prevEvent = () => { const p = [...YEARS].reverse().find(y => y < year); if (p) setYear(p); };
+  handle.addEventListener("keydown", ev => {
+    const k = ev.key; let used = true;
+    if (k === "ArrowRight" || k === "ArrowUp") setYear(year + 1);
+    else if (k === "ArrowLeft" || k === "ArrowDown") setYear(year - 1);
+    else if (k === "PageUp") nextEvent(); else if (k === "PageDown") prevEvent();
+    else if (k === "Home") setYear(START); else if (k === "End") setYear(END);
+    else used = false;
+    if (used) { ev.preventDefault(); stop(); }
+  });
+  document.getElementById("nextEv").onclick = () => { stop(); nextEvent(); };
+  document.getElementById("prevEv").onclick = () => { stop(); prevEvent(); };
+  let timer = null;
+  const playBtn = document.getElementById("play");
+  function stop() { clearInterval(timer); timer = null; playBtn.textContent = "▶ Play"; }
+  playBtn.onclick = () => {
+    if (timer) return stop();
+    if (year >= YEARS[YEARS.length - 1]) setYear(START);
+    playBtn.textContent = "❚❚ Pause";
+    timer = setInterval(() => { if (year >= YEARS[YEARS.length - 1]) return stop(); nextEvent(); }, 2600);
+  };
+  setYear(START);
+}
+</script>
+</body>
+</html>

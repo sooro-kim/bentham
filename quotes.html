@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bentham in Quotes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .quote { position: relative; padding: 28px 28px 22px 64px; }
+    .quote::before { content: "\201C"; position: absolute; left: 18px; top: 4px; font-family: var(--f-display); font-size: 5rem; line-height: 1; color: var(--accent); }
+    .quote .full { font-family: var(--f-display); font-size: 1.35rem; line-height: 1.4; display: block; margin-bottom: 12px; }
+    .quote .full mark { background: rgba(220,177,95,.22); color: var(--ink); padding: 0 3px; border-radius: 3px; }
+    .quote .src { font-size: .85rem; color: var(--ink-soft); margin-bottom: 12px; }
+    .quote .note { font-size: .97rem; border-top: 1px solid var(--rule); padding-top: 12px; margin: 0; }
+    .quote .ask { margin: 0 0 4px; }
+    .quote .ask-q { font-family: var(--f-display); font-size: 1.3rem; line-height: 1.4; }
+    .blank { display: inline-block; min-width: 6em; border-bottom: 2px solid var(--accent); }
+    .tally { color: var(--ink-soft); margin-bottom: 18px; }
+    .group { margin: 40px 0 14px; }
+    @media (max-width: 520px) { .quote { padding: 24px 16px 18px 44px; } .quote::before { left: 8px; font-size: 4rem; } }
+  </style>
+</head>
+<body data-step="quotes">
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Quotes</p>
+    <h1>Bentham in his own words, almost</h1>
+    <p class="lede">Each sentence is missing its key words. You will not remember them, so reason them out from his theory. Then the full passage and a note open.</p>
+  </header>
+  <p class="tally" id="tally"></p>
+  <div id="quotes"></div>
+  <p class="cite" style="margin-top:28px">Ten passages are quoted as they appear in Hunt &amp; Lautzenheiser, ch. 6, pp. 130–133, with Hunt's ellipses and square brackets; page numbers refer to Hunt, and volume numbers to <em>Jeremy Bentham's Economic Writings</em>, ed. W. Stark (1954), Hunt's source. The axiom from <em>A Fragment on Government</em> and the push-pin sentence from <em>The Rationale of Reward</em> were checked against the <em>Stanford Encyclopedia of Philosophy</em> and Wikipedia. Square brackets in the chest passage mark our own words.</p>
+</main>
+<script src="js/site.js"></script>
+<script src="js/learn.js"></script>
+<script>
+// before + key + after makes the full passage; "after" carries its own leading space or punctuation.
+// wrong: [choice, why it is wrong]. note: two sentences.
+const GROUPS = ["The principle", "Human nature", "Value", "The early economist", "The reformer"];
+const Q = [
+  { g: 0, before: "it is the greatest happiness of the greatest number that is the measure of", key: "right and wrong", after: ".",
+    wrong: [["wealth", "Wealth is the subject Senior later gave political economy: “not Happiness, but Wealth” (Hunt p. 142). Bentham's measure is happiness itself."],
+            ["the law of nature", "Bentham attacked natural rights as “nonsense upon stilts.” His measure is not nature's law but happiness, which can be counted."]],
+    src: "A Fragment on Government (1776), preface",
+    note: "The whole of Bentham in one line: actions and laws are judged by how much happiness they produce, and for how many. It appeared the same year as the Wealth of Nations." },
+  { g: 0, before: "Nature has placed mankind under the governance of two sovereign masters,", key: "pain and pleasure", after: ". It is for them alone to point out what we ought to do, as well as to determine what we shall do . . . . They govern us in all we do, in all we say, in all we think . . . .",
+    wrong: [["reason and conscience", "Reason and conscience might point out what we ought to do, but Bentham wants masters that also “determine what we shall do.” One pair must do both jobs."],
+            ["duty and interest", "Bentham does not set duty against interest. His one pair of masters tells us both what we ought to do and what we shall do."]],
+    src: "An Introduction to the Principles of Morals and Legislation (1780), ch. 1 · Hunt p. 130",
+    note: "One sentence makes pleasure and pain both the cause of what we do and the standard of what we ought to do. Hunt says Bentham thereby reduced all motivation, “in all times and all places,” to a single principle, the philosophical basis of neoclassical economics." },
+  { g: 0, before: "To a number of persons, with reference to each of whom the value of a pleasure or pain is considered, it will be greater or less, according to seven circumstances: . . . viz. 1. Its intensity. 2. Its duration. 3. Its certainty or uncertainty. 4. Its propinquity or remoteness. 5. Its fecundity. 6. Its purity. 7. Its", key: "extent", after: ".",
+    wrong: [["moral worth", "Bentham allows no measure of a pleasure beyond the pleasure itself: “prejudice apart,” push-pin is as good as poetry. Every circumstance here could, in principle, be measured."],
+            ["price", "Price is set in the market, after the fact. These circumstances describe the pleasure or pain itself, as felt by “a number of persons.”"]],
+    src: "An Introduction to the Principles of Morals and Legislation · Hunt p. 130",
+    note: "Bentham believed pleasures and pains could be numerically quantified so that we could “understand their value.” The last circumstance is there because, as the passage begins, a pleasure is weighed “to a number of persons.”" },
+  { g: 0, before: "Prejudice apart, the game of push-pin is of equal value with the arts and sciences of", key: "music and poetry", after: ".",
+    wrong: [["law and government", "Bentham thought law and government could add greatly to happiness; he spent his life on them. The sentence compares two kinds of pleasure."],
+            ["trade and manufactures", "The comparison is between a simple game and the arts usually ranked highest of all."]],
+    src: "The Rationale of Reward (1825)",
+    note: "If only the quantity of pleasure counts, an hour of push-pin can be worth as much as an hour of poetry. J. S. Mill's answer was that some pleasures are of higher quality than others." },
+  { g: 1, before: "In the general tenor of life, in every human breast, self-regarding interest is", key: "predominant over all other interests put together", after: " . . . . Self-preference has place everywhere.",
+    wrong: [["balanced by an equal fellow-feeling", "Then self-preference could not have “place everywhere.” Bentham admits other interests exist, but puts self above all of them together."],
+            ["found chiefly among men of trade", "“In every human breast” and “everywhere”: he is describing human nature, not one trade. That universality is what Marx attacked when he said Bentham took the English shopkeeper as the normal man."]],
+    src: "Economic Writings, vol. 3, p. 412 · Hunt p. 131",
+    note: "Hunt: Bentham saw human beings both as calculating maximizers of pleasure and as “fundamentally individualistic.” The same premise later undercuts his reforming legislator, who has a human breast too (Hunt p. 134)." },
+  { g: 1, before: "Aversion is the emotion—the only emotion—which labour, taken by itself, is qualified to produce . . . . In so far as labour is taken in its proper sense, love of labour is a", key: "contradiction in terms", after: ".",
+    wrong: [["rare and admirable virtue", "If aversion is “the only emotion” labour produces, there is no love of labour left to admire."],
+            ["habit formed in youth", "No habit changes what labour, “taken by itself,” produces: aversion. Any willingness to work must come from the pleasure it buys or the pain it avoids."]],
+    src: "Economic Writings, vol. 3, p. 428 · Hunt p. 131",
+    note: "Work is pure pain, so no one works without the promise of a greater pleasure or the threat of a greater pain. Senior later called the capitalist's abstinence a painful exertion too, to be paid for with profit (Hunt p. 147)." },
+  { g: 2, before: "The terms wealth and value explain each other. An article can only enter into the composition of a mass of wealth if it possesses some value. It is by the degrees of that value that wealth is measured. All value is founded on", key: "utility", after: " . . . . Where there is no use, there cannot be any value.",
+    wrong: [["labour", "That is Smith's and Ricardo's answer, the one Say called “an error.” Bentham's next sentence gives his own: where there is no use, there is no value."],
+            ["scarcity", "Scarcity enters in the next passage, but through use: water in surplus has no value because the surplus has no use."]],
+    src: "Economic Writings, vol. 3, p. 83 · Hunt p. 131",
+    note: "For Ricardo, when labour grows more productive, a commodity's value falls even as wealth grows. In Bentham's utility view wealth is measured by value, so more utility means more value and more wealth (Hunt p. 131)." },
+  { g: 2, before: "The reason why water is found not to have any value with a view to exchange is that it is equally devoid of a value with a view to use. If the whole quantity required is available, the surplus has", key: "no kind of value", after: ". It would be the same in the case of wine, grain, and everything else.",
+    wrong: [["as much value as the first glass", "Then water would be dear. The surplus beyond “the whole quantity required” serves no use, so it has no value."],
+            ["a value set by the labour of drawing it", "Bentham never asks how much labour water costs. For him value is founded on utility."]],
+    src: "Economic Writings, vol. 3, pp. 87–88 · Hunt pp. 131–32",
+    note: "This is Bentham's reply to Smith's water and diamonds: Smith, he says, need only have consulted “in London the New River Board,” which sold water. Judging value by the surplus unit rather than the whole stock, Hunt says, came “very close” to the marginal utility theory of price." },
+  { g: 3, before: "Whoever saves money adds proportionately to the general mass of", key: "capital", after: ".",
+    wrong: [["idle hoards", "That is the later Bentham's worry: money “put into a chest and kept there.” The early Bentham assumed every saving was invested."],
+            ["the national debt", "Saving here is not lending to the state. The early claim is that money saved turns automatically into capital that employs more labour."]],
+    src: "Economic Writings, vol. 1, p. 196 · Hunt p. 132",
+    note: "If every saving becomes capital, there need never be a depression or involuntary unemployment. Hunt notes that this belief came to be called Say's law, and that the later Bentham rejected it (pp. 132, 137)." },
+  { g: 4, before: "I have not . . . any horror, sentimental or anarchical, of the hand of government. I leave it to", key: "Adam Smith and the champions of the rights of man", after: " (for confusion of ideas will jumble together the best subjects and the worst citizens upon the same ground) to talk of invasions of natural liberty, and to give as a special argument against this or that law, an argument the effect of which would be to put a negative upon all laws.",
+    wrong: [["the ministers and magistrates of his own day", "They are the hand of government. Bentham is naming those who object to it in the name of “natural liberty.”"],
+            ["Blackstone and the champions of the old laws", "Bentham did attack Blackstone, but not here. This passage targets the appeal to “natural liberty” and the rights of man, an argument that would “put a negative upon all laws.”"]],
+    src: "Economic Writings, vol. 3, pp. 257–58 · Hunt pp. 132–33",
+    note: "By 1801 Bentham put Smith beside the champions of natural rights, which he had called “nonsense upon stilts.” His test for a law is not liberty but advantage: interference that brings “the smallest . . . advantage” is “an event I witness with . . . satisfaction.”" },
+  { g: 4, before: "[Suppose that the money saved,] instead of being put into circulation, is for an indefinite time", key: "put into a chest and kept there", after: ".",
+    wrong: [["lent to a manufacturer to employ more hands", "That is the early Bentham's case, in which saving becomes capital. Here the money is taken out of circulation."],
+            ["spent on the saver's own pleasures", "Then it would not be saved, and it would still be circulating."]],
+    src: "Economic Writings, vol. 3, p. 123 · Hunt p. 133",
+    note: "Then saving lowers prices and production, and profits and investment fall. If the government added money to circulation, Bentham argued, “the money introduced . . . becomes a source of increasing wealth.”" },
+  { g: 4, before: "Take, for example, on the one hand, a labouring man, who, for the whole of his life, has a bare but sure subsistence . . . . Take, on the other hand, the richest man in the country . . . . [Suppose the richest man receives an income] 50,000 times as great as that received, in the same time, by the labourer. This supposed, the quantity of pleasure in the breast of the . . . [rich man] will naturally be greater than the quantity in the breast of the labourer: Be it so. But by how much—by how many times greater? Fifty thousand times? This is assuredly more than any man would take it upon himself to say. A thousand times then?—a hundred?—ten times?—five times? . . . Five times the labourer's seems a very large, not to say excessive allowance: even", key: "twice", after: ", a liberal one.",
+    wrong: [["ten times", "He has just called five times “a very large, not to say excessive allowance.” “Even ___, a liberal one” must be smaller than five."],
+            ["a thousand times", "He passed a thousand on the way down. The sentence is still coming down from five."]],
+    src: "Economic Writings, vol. 3, p. 441 · Hunt p. 133",
+    note: "An income 50,000 times larger gives at most a few times more pleasure: Hunt calls this the diminishing marginal utility of money. So, other things equal, moving money from the rich to the poor raises total happiness, which is exactly the premise Senior later denied (Hunt pp. 133, 144–45)." },
+];
+
+let solved = Ledger.note("quotes-solved") || [];
+const host = document.getElementById("quotes");
+function tally() {
+  document.getElementById("tally").textContent = solved.length === Q.length
+    ? "All twelve completed. Seal earned." : `${solved.length} of ${Q.length} completed · complete all twelve to earn the seal`;
+}
+let grid = null, g = -1;
+Q.forEach((q, i) => {
+  if (q.g !== g) {
+    g = q.g;
+    host.insertAdjacentHTML("beforeend", `<h2 class="group">${GROUPS[g]}</h2>`);
+    grid = document.createElement("div"); grid.className = "grid two"; host.append(grid);
+  }
+  const card = document.createElement("article");
+  card.className = "card quote";
+  card.innerHTML = `<div class="slot"></div><div class="done hidden">
+    <span class="full">${q.before} <mark>${q.key}</mark>${q.after}</span>
+    <div class="src">${q.src}</div><p class="note">${q.note}</p></div>`;
+  grid.append(card);
+  const done = card.querySelector(".done");
+  if (solved.includes(i)) { done.classList.remove("hidden"); return; }
+  Learn.mcq(card.querySelector(".slot"), {
+    label: "Finish the sentence", q: `${q.before} <span class="blank">&nbsp;</span>${q.after}`,
+    choices: [{ t: q.key, ok: true, fb: "" }, ...q.wrong.map(([t, fb]) => ({ t, fb }))],
+    onSolve: () => {
+      card.querySelector(".slot").classList.add("hidden");
+      Learn.open(done);
+      if (!solved.includes(i)) solved.push(i);
+      Ledger.note("quotes-solved", solved); tally();
+      if (solved.length === Q.length) Ledger.complete("quotes");
+    } });
+});
+tally();
+</script>
+</body>
+</html>

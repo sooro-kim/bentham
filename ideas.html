@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bentham Key Ideas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .ideas { display: grid; gap: 22px; max-width: 860px; }
+    .idea h3 { display: flex; gap: 12px; align-items: baseline; font-size: 1.6rem; }
+    .idea .num { font-family: var(--f-script); color: var(--accent); font-size: 2.2rem; line-height: 1; min-width: 1.2em; }
+    .idea.locked { opacity: .5; }
+    .idea.locked h3 .t { filter: blur(5px); user-select: none; }
+    .idea .state { font: 700 .75rem var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin: -6px 0 6px; }
+    .idea.solvedcard .state { color: var(--right); }
+    .idea-body p:last-child { margin-bottom: 0; }
+    .progress { position: sticky; top: 72px; z-index: 5; background: rgba(14,33,29,.9); padding: 8px 0; margin-bottom: 8px; max-width: 860px; }
+    .progress .bar { height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+    .progress .bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .4s; }
+    .progress small { color: var(--ink-soft); }
+    .mini { border-collapse: collapse; font-variant-numeric: tabular-nums; margin: 10px 0 14px; }
+    .mini th, .mini td { border: 1px solid var(--rule); padding: 6px 12px; text-align: center; }
+    .mini th { font-family: var(--f-display); color: var(--ink-soft); }
+    .seven { counter-reset: s; list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    .seven li { counter-increment: s; border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px 8px 44px; position: relative; font-size: .93rem; color: var(--ink-soft); }
+    .seven li::before { content: counter(s); position: absolute; left: 14px; top: 4px; font: 400 1.6rem var(--f-script); color: var(--accent); }
+    .seven li b { color: var(--ink); font-family: var(--f-display); font-size: 1.1rem; display: block; }
+    .five { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 10px 0 14px; }
+    .five div { border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; font-size: .88rem; color: var(--ink-soft); }
+    .five b { display: block; color: var(--ink); font-family: var(--f-display); font-size: 1.05rem; }
+    .buckets { display: flex; gap: 6px; align-items: flex-end; height: 120px; margin: 12px 0 4px; }
+    .buckets div { flex: 1; background: var(--pleasure); border-radius: 3px 3px 0 0; position: relative; min-height: 2px; }
+    .buckets div span { position: absolute; top: -20px; left: 0; right: 0; text-align: center; font-size: .8rem; color: var(--ink-soft); }
+    .buckets div.cut { background: var(--rule); }
+    .bucket-labels { display: flex; gap: 6px; font-size: .78rem; color: var(--ink-soft); }
+    .bucket-labels span { flex: 1; text-align: center; }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Key Ideas</p>
+    <h1>Ten ideas, opened one at a time</h1>
+    <p class="lede">Each idea stays closed until you solve the question in front of it. A wrong answer tells you what it gets wrong, and the next idea opens only when you get this one right.</p>
+  </header>
+
+  <div class="progress"><div class="bar"><i id="pbar"></i></div><small id="ptext"></small></div>
+  <div class="ideas" id="ideas"></div>
+  <p class="cite" style="margin-top:28px;max-width:860px">Quotations from Bentham are from <em>An Introduction to the Principles of Morals and Legislation</em> and from <em>Jeremy Bentham's Economic Writings</em> (ed. W. Stark, 1954), as quoted in Hunt &amp; Lautzenheiser, ch. 6, pp. 125–134. Page numbers in brackets are Hunt's.</p>
+</main>
+<script src="js/site.js"></script>
+<script src="js/learn.js"></script>
+<script>
+// Diminishing utility of successive buckets of water (used in idea vi).
+const WATER = [50, 30, 15, 5, 0, 0];
+function bucketsHTML(have) {
+  const max = Math.max(...WATER);
+  return `<div class="buckets" role="img" aria-label="Utility of each successive bucket of water">${WATER.map((v, i) =>
+      `<div class="${i < have ? "" : "cut"}" style="height:${Math.max(2, v / max * 100)}%"><span>${v}</span></div>`).join("")}</div>
+    <div class="bucket-labels">${WATER.map((_, i) => `<span>bucket ${i + 1}</span>`).join("")}</div>`;
+}
+
+const IDEAS = [
+  { title: "Premises taken from a market society",
+    ask: { q: "Hunt opens the chapter by asking where the premises of utility theory came from. What is his answer?",
+      choices: [
+        { ok: true, t: "From real features of early capitalism, which writers then mistook for facts about human nature everywhere.",
+          fb: "Hunt's claim is that utility theorists noticed real conditions of their own society and mistook them for human nature everywhere [pp. 125–26]." },
+        { t: "From introspection alone: anyone who examines his own mind finds that he seeks pleasure and avoids pain.",
+          fb: "That is what Bentham and Senior said they were doing. Hunt's point is that the introspection was done by people living inside a particular kind of society, and it showed them that society." },
+        { t: "From physics: economists copied Newton's mechanics and needed a quantity to play the role of energy.",
+          fb: "Bentham did hope for a science of happiness with “the same numerical exactitude as the science of physics” [p. 130]. But Hunt traces the premises to social conditions, not to an imitation of physics." },
+        { t: "From the labour theory of value, which Bentham completed by measuring the pain of each hour of work.",
+          fb: "The reverse. Hunt says Bentham, Say, and Senior each helped economists abandon the labour theory of value, and with it its class-conflict conclusions [p. 127]." } ] },
+    body: `
+      <p>Hunt lists five features of capitalism, each of which the utility tradition turned into a fact about human nature [p. 129]:</p>
+      <div class="five">
+        <div><b>Atomistic individualism</b>Specialized producers see themselves as isolated units facing the market alone.</div>
+        <div><b>Egoistic utilitarianism</b>All motives become the pursuit of pleasure and avoidance of pain.</div>
+        <div><b>Dependence on markets</b>Everyone needs the market, so it looks good for everyone.</div>
+        <div><b>Profits finance growth</b>If the income split is taken as given, capitalists appear to pay the cost of accumulation.</div>
+        <div><b>Calculating rationalism</b>The businessman's bookkeeping becomes the model of every decision.</div>
+      </div>
+      <p>The tradition starts earlier than Bentham. Thomas Hobbes, in <em>Leviathan</em> (1651), held that every motive, even pity, was disguised self-interest, and that without a sovereign life would be “solitary, poor, nasty, brutish, and short” [p. 126]. Hobbes's remedy was an absolute monarch. Later writers who kept his view of human nature replaced the monarch with the “invisible hand” of the market.</p>
+      <p>Keep this frame in mind as you read Bentham. The question is not only whether his principle is true, but what it makes easy and hard to see.</p>` },
+
+  { title: "Two sovereign masters",
+    pre: `<blockquote class="q">“Nature has placed mankind under the governance of two sovereign masters, <span class="k-pain">pain</span> and <span class="k-pleasure">pleasure</span>. It is for them alone to point out what we ought to do, as well as to determine what we shall do . . . . They govern us in all we do, in all we say, in all we think . . . .” [p. 130]</blockquote>`,
+    ask: { q: "Read the second sentence again. Pleasure and pain do two jobs in it. What are they?",
+      choices: [
+        { ok: true, t: "They explain what people will do, and they are also the standard of what people ought to do.",
+          fb: "“What we ought to do” is a moral standard; “what we shall do” is a prediction. Bentham makes one principle carry both, which is why utilitarianism is at once a theory of behaviour and a theory of good legislation." },
+        { t: "They explain what people will do, but Bentham is careful to say nothing about what they ought to do.",
+          fb: "“It is for them alone to point out what we ought to do” is a claim about morals. It is Senior, later, who tries to strip ethics out of economics [p. 142]." },
+        { t: "They are two separate motives that pull against each other, so behaviour is unpredictable.",
+          fb: "Bentham treats pain as negative pleasure, so the two collapse into one scale. Hunt restates the principle as “all human activity springs from the desire to maximize pleasure” [p. 130]." },
+        { t: "Pleasure governs the rich, who can afford it, and pain governs the poor, who cannot escape it.",
+          fb: "Bentham's claim is universal: “mankind,” “in all we do.” The universality is exactly what Hunt questions in idea i." } ] },
+    body: `
+      <p>Bentham then defines his key term:</p>
+      <blockquote class="q">“By utility is meant that property in any object, whereby it tends to produce benefit, advantage, pleasure, good, or happiness (all this in the present case comes to the same thing), or (what comes again to the same thing) to prevent the happening of mischief, pain, evil, or unhappiness to the party whose interest is considered.” [p. 130]</blockquote>
+      <p style="margin-top:14px">Notice the two parentheses. Benefit, advantage, pleasure, good, and happiness “come to the same thing.” Every kind of good is put on one scale, so goods can be added and compared. That single scale is what makes a <em>calculus</em> possible, and it is the root of the word economists still use: utility.</p>
+      <p>The social version is the axiom from his first book, <em>A Fragment on Government</em> (1776): “it is the greatest happiness of the greatest number that is the measure of right and wrong.”</p>` },
+
+  { title: "Seven circumstances: the felicific calculus",
+    pre: `<p>Bentham thought pleasures could be “numerically quantified” so that we can “understand their value” [p. 130]. The first circumstances he names for a single pleasure are its <strong>intensity</strong>, its <strong>duration</strong>, and its <strong>certainty</strong>.</p>
+          <p>Take the simplest version: value = intensity × duration × certainty, where certainty is the chance the pleasure happens at all.</p>`,
+    ask: { kind: "num", q: "A pleasure of intensity <strong>6</strong> would last <strong>4</strong> hours, but there is only a <strong>one-in-two</strong> chance it happens. What is its value?",
+      answer: 12,
+      misses: [
+        { when: v => v === 24, fb: "24 is intensity × duration. A pleasure that may not happen is worth less than one that surely will. Multiply by its certainty." },
+        { when: v => v === 10, fb: "Intensity and duration multiply rather than add: a pleasure twice as long at the same intensity is twice as much pleasure." },
+        { when: v => v === 5, fb: "Add-then-halve treats intensity and duration as substitutes. Multiply them, then apply the certainty." },
+        { when: v => v === 3, fb: "That halves twice. Certainty is one-in-two, applied once." } ],
+      reveal: "6 × 4 = 24 units if it were sure; with a one-in-two chance, 24 × 0.5 = 12.",
+      fbRight: "6 × 4 = 24 if it were sure, and a one-in-two chance halves it to 12." },
+    body: `
+      <p>The full list, as Bentham gave it:</p>
+      <blockquote class="q">“To a number of persons, with reference to each of whom the value of a pleasure or pain is considered, it will be greater or less, according to seven circumstances: . . . viz.” [p. 130]</blockquote>
+      <ol class="seven">
+        <li><b>Intensity</b>How strong it is.</li>
+        <li><b>Duration</b>How long it lasts.</li>
+        <li><b>Certainty or uncertainty</b>How likely it is to happen.</li>
+        <li><b>Propinquity or remoteness</b>How soon it comes.</li>
+        <li><b>Fecundity</b>The chance it is followed by more sensations of the same kind.</li>
+        <li><b>Purity</b>The chance it is <em>not</em> followed by the opposite kind.</li>
+        <li><b>Extent</b>The number of persons it reaches.</li>
+      </ol>
+      <p>The first four value a single sensation for one person. Fecundity and purity value the <em>act</em> that produces it, by what follows. Extent is what turns a private calculation into a public one: the legislator adds up the balance for everyone affected. You will work through all seven in <a href="games/calculus.html">The Felicific Calculus</a>.</p>
+      <p class="mb-0">Two of these survive in every economics course under other names: certainty becomes <em>expected</em> utility, and propinquity becomes <em>discounting</em>. Extent is the one that later economists dropped, for reasons you will meet in idea ix.</p>` },
+
+  { title: "Self-preference, and labour as pure pain",
+    ask: { q: "Bentham held that people are dominated by self-regarding interest and that work is painful in itself. What follows for anyone who wants work done?",
+      choices: [
+        { ok: true, t: "It must be paid for or compelled: work happens only for a greater pleasure or against a greater pain.",
+          fb: "If labour yields nothing but aversion, a wage is a payment to endure pain. The same idea, applied to the capitalist, becomes Senior's “abstinence” [p. 147]." },
+        { t: "Most people will work anyway, for the satisfaction of a job well done and the respect it brings.",
+          fb: "That is exactly what Bentham denies: “love of labour is a contradiction in terms” [p. 131]." },
+        { t: "Work should be kept to a minimum, since on this account it only ever adds pain to the ledger.",
+          fb: "Work produces the goods that give pleasure. The calculus says to undertake it when the pleasure it buys outweighs its pain." },
+        { t: "Wages should be set by the needs of each worker's family, since want is a pain too.",
+          fb: "Nothing in self-preference ties pay to need. (Senior, for one, attacked the idea of paying by need [pp. 139–40].)" } ] },
+    body: `
+      <blockquote class="q">“In the general tenor of life, in every human breast, self-regarding interest is predominant over all other interests put together . . . . Self-preference has place everywhere.” [p. 131]</blockquote>
+      <blockquote class="q">“Aversion is the emotion—the only emotion—which labour, taken by itself, is qualified to produce . . . . In so far as labour is taken in its proper sense, love of labour is a contradiction in terms.” [p. 131]</blockquote>
+      <p style="margin-top:14px" class="mb-0">Compare Smith, Ricardo, and later Marx, for whom labour is the <em>source</em> of value. For Bentham labour is a <em>cost</em>, a pain to be weighed against the pleasures it buys. The modern labour-leisure model, where work enters the utility function with a minus sign, is Bentham's view in algebra.</p>` },
+
+  { title: "All value is founded on utility",
+    pre: `<blockquote class="q">“The terms wealth and value explain each other. An article can only enter into the composition of a mass of wealth if it possesses some value. It is by the degrees of that value that wealth is measured. All value is founded on utility . . . . Where there is no use, there cannot be any value.” [p. 131]</blockquote>`,
+    ask: { q: "Labour becomes twice as productive in making cloth. Ricardo and Bentham agree that the nation now has more cloth. What do they say about its value?",
+      choices: [
+        { ok: true, t: "Ricardo: each yard is worth less, though wealth grows. Bentham: more useful cloth is more value, and so more wealth.",
+          fb: "For Ricardo, value and wealth can move in opposite directions. For Bentham they “explain each other,” so more utility is more value is more wealth [p. 131]." },
+        { t: "Both say each yard is worth less, since value follows the labour it takes, and that labour has halved.",
+          fb: "That is Ricardo's answer only. Bentham has no labour in his theory of value at all; value is founded on utility." },
+        { t: "Both say total value has doubled, because there is twice as much cloth and value measures wealth.",
+          fb: "Ricardo explicitly denies this: higher productivity lowers the value of each commodity while raising the general wealth [p. 131]." },
+        { t: "Neither: prices are set by supply and demand alone, so productivity tells you nothing about value.",
+          fb: "Both men are giving a theory of what lies behind supply and demand. Their theories disagree about what that is." } ] },
+    body: `
+      <p>Smith and Ricardo agreed that a thing must be useful to have exchange value. But they did not think use could explain <em>how much</em> exchange value a thing has. Bentham did [p. 131].</p>
+      <p class="mb-0">This is the hinge of the chapter. Under the labour theory, incomes from working and from owning are different in kind, and that difference points to class conflict. Under utility, every source of value is just a contributor to utility. Say will draw that conclusion openly: labour, capital, and land are coequal “productive agencies” [p. 135]. So the choice of a value theory is also a choice about whether classes appear in the theory at all.</p>` },
+
+  { title: "Water and diamonds",
+    pre: `<p>Smith used water and diamonds to show that use and exchange value are unrelated: water is most useful and nearly free; diamonds are nearly useless and dear. Bentham answered him.</p>
+          <p>Here is a household's pleasure from each successive bucket of water in a day (bucket 1 is drinking water, the later ones wash floors):</p>
+          ${bucketsHTML(6)}`,
+    ask: { kind: "num", q: "The household has <strong>2</strong> buckets. A water-carrier at the door offers a <strong>third</strong>. How much pleasure is that bucket worth to the household?",
+      answer: 15,
+      misses: [
+        { when: v => v === 30, fb: "30 is the second bucket, which the household already has. What does the <em>next</em> one add?" },
+        { when: v => v === 95, fb: "95 is the total from three buckets. The carrier is selling one more bucket, not the whole supply." },
+        { when: v => v === 80, fb: "80 is what the two buckets they already have give together. The question is what one more adds." },
+        { when: v => v === 0, fb: "That would be right if the household had four or more buckets already. With only two, a third still matters." } ],
+      reveal: "The third bucket adds 15. What a thing is worth in exchange depends on what the next unit adds, not on the total.",
+      fbRight: "The third bucket adds 15. With five buckets on hand the sixth would add nothing, and nobody would pay for it." },
+    body: `
+      <p>That is Bentham's argument, nearly in those words:</p>
+      <blockquote class="q">“Water is the example he has chosen of that sort of article which has great value with a view to use but none with a view to exchange. In order to realize how erroneous the latter assertion is, he would only have had to consult in London the New River Board, and to remember that at Paris he had seen it sold retail by those who carry it into the houses. . . . The reason why water is found not to have any value with a view to exchange is that it is equally devoid of a value with a view to use. If the whole quantity required is available, the surplus has no kind of value.” [pp. 131–32]</blockquote>
+      <p style="margin-top:14px">“The surplus has no kind of value.” Water is cheap not because it is useless but because the <em>last</em> unit of it is. Hunt says Bentham “came very close to developing a theory of the relationship between marginal utility and price” [p. 132], the idea that Jevons, Menger, and Walras made the centre of economics in the 1870s.</p>
+      <p class="mb-0">What is lost in lining him up with the marginalists? Bentham's “value in use” is a quantity of felt pleasure that he hoped to measure. Later economists kept the margin and threw away the measurement.</p>` },
+
+  { title: "Early Bentham: saving is capital, and government cannot help",
+    ask: { q: "Young Bentham wrote: “Whoever saves money adds proportionately to the general mass of capital.” If that is always true, what must also be true?",
+      choices: [
+        { ok: true, t: "There can be no general glut, since every pound not spent on consumption is spent on capital.",
+          fb: "If every saved pound is invested, total spending never falls short of total output. This is the view later called Say's law [pp. 132, 137]." },
+        { t: "Saving reduces employment, because savers buy fewer goods and merchants hire fewer hands.",
+          fb: "That is the worry Bentham reached later. On the early view, a pound not spent on bread is spent on tools and wages instead." },
+        { t: "The government should encourage saving with subsidies, since saving is the only source of capital.",
+          fb: "Early Bentham was a strong advocate of laissez-faire. He thought no regulation could raise the quantity of wealth produced." },
+        { t: "Saving raises prices, because capital goods compete with consumers for the same resources.",
+          fb: "On this view saving changes what is bought, not how much is spent in total, so it gives no reason for prices in general to move." } ] },
+    body: `
+      <p>Bentham began as a follower of Smith. A free market allocates resources to their most productive uses, so government can only do harm:</p>
+      <blockquote class="q">“Therefore no regulations nor any efforts whatsoever, either on the part of subjects or governors, can raise the quantity of wealth produced during a given period.” [p. 132]</blockquote>
+      <p style="margin-top:14px" class="mb-0">On the course question, this is the harmony answer at its purest. The market does the most good possible, aggregate supply always equals aggregate demand, and there need never be involuntary unemployment. Nearly every economist of his generation agreed, except Malthus [p. 132].</p>` },
+
+  { title: "Later Bentham: the money in the chest",
+    pre: `<p>By 1801 Bentham had changed his mind about the hand of government. The first reason was saving:</p>
+          <blockquote class="q">“Suppose an increase in the habit of frugality. Its first effect will be to diminish the mass of expenditure on consumption.” [p. 133]</blockquote>
+          <p style="margin-top:14px">Suppose the money saved, “instead of being put into circulation, is for an indefinite time put into a chest and kept there.”</p>`,
+    ask: { kind: "num", q: "A town spends <strong>£100</strong> this year. Next year people save <strong>20%</strong> of their income, and <strong>half</strong> of what they save goes into a chest instead of being lent out. Everything else is spent. How much is spent next year, in pounds?",
+      answer: 90, unit: "£",
+      misses: [
+        { when: v => v === 80, fb: "That treats all saving as lost. Half of the £20 saved is lent out and spent on capital, as early Bentham said. Only the half in the chest leaves circulation." },
+        { when: v => v === 100, fb: "That would be true if all saving were lent out (early Bentham, Say). Here half of it sits in a chest." },
+        { when: v => v === 10, fb: "£10 is the amount that goes into the chest. What is left in circulation?" },
+        { when: v => v === 50, fb: "Half of the <em>savings</em> is hoarded, not half of all income." } ],
+      reveal: "Saved: 20% of £100 = £20. Hoarded: half of that = £10. Spending next year: £100 − £10 = £90.",
+      fbRight: "£20 is saved; £10 of it is lent and spent, £10 goes into the chest. Spending falls to £90." },
+    body: `
+      <p>Bentham traced what follows: falling prices and production, then falling profits, then falling investment [p. 133]. A shortfall in spending feeds on itself. And he had a remedy:</p>
+      <blockquote class="q">If the government increased the money in circulation, “then the money introduced . . . becomes a source of increasing wealth.” [p. 133]</blockquote>
+      <p style="margin-top:14px">This puts later Bentham beside Malthus, and ahead of Marx and Keynes, among the rejecters of Say's law [p. 137]. The difference from Say lies in one assumption. Say treats money as only a means of exchange, so nobody holds it. Bentham's chest is money held for its own sake. You will run this economy, and try to rescue it, in <a href="games/chest.html">The Money in the Chest</a>.</p>` },
+
+  { title: "A pound means more to a poor man",
+    pre: `<p>The second reason for government was inequality. In Hunt's words, Bentham believed that “a person's capacity to get enjoyment from money declined as he got more money” [p. 133]: in modern terms, a diminishing marginal utility of money. He put it as a comparison between a labourer with a bare but sure subsistence and the richest man in the country, with an income 50,000 times as great:</p>
+          <blockquote class="q">“. . . the quantity of pleasure in the breast of the . . . [rich man] will naturally be greater than the quantity in the breast of the labourer: Be it so. But by how much—by how many times greater? Fifty thousand times? This is assuredly more than any man would take it upon himself to say. A thousand times then?—a hundred?—ten times?—five times? . . . Five times the labourer's seems a very large, not to say excessive allowance: even twice, a liberal one.” [p. 133]</blockquote>`,
+    ask: { q: "Suppose Bentham is right: 50,000 times the money buys at most five times the pleasure. A legislator takes £100 from the richest man and gives it to labourers. What happens to the total pleasure in society?",
+      choices: [
+        { ok: true, t: "It rises: the rich man hardly notices the loss, while the labourers' gain is large.",
+          fb: "With diminishing marginal utility of money, a pound moved from where it gives little pleasure to where it gives much raises the total. Hunt: redistribution “would increase the total of society's aggregate utility” [p. 133]." },
+        { t: "It stays the same, because the money is only moved around, not created.",
+          fb: "The money total is unchanged. The pleasure total is not, because a pound is worth far less to the rich man than to the labourer." },
+        { t: "It falls, because the rich man's pain from losing £100 is greater than the labourers' gain from it.",
+          fb: "That gets the direction backwards. The rich man's pleasure is at most a few times the labourer's, though his money is 50,000 times as great, so each of his pounds gives very little." },
+        { t: "It cannot be said, since pleasures of different people cannot be compared.",
+          fb: "That is Senior's position, and later Robbins's [p. 145]. Bentham compares them openly: the whole passage is a comparison between two breasts." } ] },
+    body: `
+      <p>But Bentham was “by no means an advocate of complete equality” [p. 133]. Past some point, redistribution does more harm than good, above all by weakening the workers' inducement to labour. His standard for the right degree of inequality:</p>
+      <blockquote class="q">It “should be that which has place in the Anglo-American United States: meaning always those in which slave-holding has no place.” [p. 133]</blockquote>
+      <p style="margin-top:14px">Hunt notes that inequality in those states was then far less than in England, so this “would have meant a very radical reform indeed” [p. 134]. In <a href="games/purse.html">The Labourer and the Richest Man</a> you will find the point where redistribution stops paying.</p>
+      <p class="mb-0">Two premises carry the argument: people can become nearly satiated with wealth, and one person's utility can be compared with another's. Later, more conservative utility theorists had to deny both. Senior denied both explicitly [pp. 144–45].</p>` },
+
+  { title: "Who reforms the reformers?",
+    ask: { q: "Bentham's reforms need a government that redistributes for the general good. Hunt finds a difficulty inside Bentham's own premises. Which?",
+      choices: [
+        { ok: true, t: "Legislators are egoists too, and they have more to gain by serving the rich than the poor.",
+          fb: "The reformer's government has to be “a benevolent, impartial institution,” but it is made of “ordinary persons” who maximize their own pleasure [p. 134]." },
+        { t: "The government cannot know the intensity and duration of everyone's pleasures, so it cannot run the calculus.",
+          fb: "That is a fair objection (Hayek would make a version of it), but it is not Hunt's. Hunt's is about motives, not information." },
+        { t: "Redistribution violates the natural right to property, which no calculation of pleasure can override.",
+          fb: "Bentham rejected natural rights altogether; he called them “nonsense upon stilts.” The difficulty Hunt finds is internal to utilitarianism." },
+        { t: "Taxes on the rich are always passed on, so in the end the poor pay for their own relief.",
+          fb: "Hunt does not argue about tax incidence here. His point concerns who controls the government." } ] },
+    body: `
+      <p>Hunt calls this “an inadequacy that was to be pervasive in the neoclassical approach” [p. 134]: the policy recommendations assume a neutral state, while the theory of human nature says there is no such thing.</p>
+      <p>Bentham saw a version of the problem himself. His worry about the “sinister interests” of rulers drew him into parliamentary reform. After meeting James Mill in 1808 he drafted a case for it, published as the <em>Plan of Parliamentary Reform</em> (1817): votes for literate men, equal electoral districts, annual elections, and the secret ballot, which he thought the most important of all. Soon after, he declared himself a republican. Whether a reformed electorate solves Hunt's problem is a question worth arguing in class.</p>
+      <p class="mb-0">Hunt's last word on Bentham: over his lifetime there was “a split or antagonism between his earlier extreme laissez-faire attitude and his later reformist attitude,” and the same split runs through the neoclassical tradition built on his philosophy [p. 134]. That split is Bentham's answer to the course question. The market harmonizes interests, except where it doesn't, and the exceptions are where the arguments start.</p>` },
+];
+
+const NUMS = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
+let solved = Ledger.note("ideas-solved") || [];
+const host = document.getElementById("ideas");
+
+function progress() {
+  const n = solved.length;
+  document.getElementById("pbar").style.width = (n / IDEAS.length * 100) + "%";
+  document.getElementById("ptext").textContent = n === IDEAS.length
+    ? "All ten ideas opened. Seal earned."
+    : `${n} of ${IDEAS.length} ideas opened · the next one opens when you solve this one`;
+}
+
+// The first unsolved idea is "current"; everything after it stays closed.
+function buildCard(i) {
+  const idea = IDEAS[i];
+  const next = IDEAS.findIndex((_, k) => !solved.includes(k));
+  const isSolved = solved.includes(i), isCurrent = i === next;
+  const card = document.createElement("article");
+  card.className = "card idea" + (isSolved ? " solvedcard" : isCurrent ? "" : " locked");
+  card.id = "idea-" + (i + 1);
+  card.innerHTML = `<h3><span class="num">${NUMS[i]}</span><span class="t">${isSolved || isCurrent ? idea.title : "A closed idea"}</span></h3>
+    <div class="state">${isSolved ? "✓ Opened" : isCurrent ? "Solve to open" : `Opens after idea ${NUMS[i - 1]}`}</div>`;
+  if (isSolved) {
+    card.insertAdjacentHTML("beforeend", (idea.pre || "") + `<div class="idea-body">${idea.body}</div>`);
+  } else if (isCurrent) {
+    card.insertAdjacentHTML("beforeend", (idea.pre || "") + `<div class="slot"></div><div class="idea-body hidden"></div>`);
+    const slot = card.querySelector(".slot"), body = card.querySelector(".idea-body");
+    const done = () => {
+      if (!solved.includes(i)) solved.push(i);
+      Ledger.note("ideas-solved", solved);
+      body.innerHTML = idea.body; Learn.open(body);
+      card.classList.add("solvedcard"); card.querySelector(".state").textContent = "✓ Opened";
+      idea.after && idea.after();
+      progress();
+      if (solved.length === IDEAS.length) Ledger.complete("ideas");
+      // open the following idea in place, leaving this one (and its feedback) on screen
+      const nxt = document.getElementById("idea-" + (i + 2));
+      if (nxt) nxt.replaceWith(buildCard(i + 1));
+    };
+    const o = Object.assign({ label: "Your answer first", onSolve: done }, idea.ask);
+    idea.ask.kind === "num" ? Learn.num(slot, o) : Learn.mcq(slot, o);
+  }
+  return card;
+}
+IDEAS.forEach((idea, i) => {
+  host.append(buildCard(i));
+  if (solved.includes(i) && idea.after) idea.after();
+});
+progress();
+</script>
+</body>
+</html>

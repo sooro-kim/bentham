@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bentham's Models</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .model { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 28px; align-items: start; }
+    @media (max-width: 900px) { .model { grid-template-columns: minmax(0, 1fr); } }
+    .ctl { display: grid; gap: 14px; }
+    .ctl label { display: block; font-size: .95rem; }
+    .ctl label b { float: right; font-variant-numeric: tabular-nums; color: var(--accent); }
+    .ctl .help { font-size: .82rem; color: var(--ink-soft); margin-top: 2px; }
+    .ctl .group { font: 700 .75rem var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: 10px; }
+    .readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 14px 0; }
+    .readout div { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; }
+    .readout small { display: block; color: var(--ink-soft); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+    .readout b { font: 700 1.5rem var(--f-display); font-variant-numeric: tabular-nums; }
+    .ledgerbar { display: grid; grid-template-columns: 8.5em 1fr 4em; gap: 8px; align-items: center; font-size: .9rem; margin: 6px 0; }
+    .ledgerbar .track { height: 18px; background: var(--paper-2); border-radius: 3px; position: relative; overflow: hidden; }
+    .ledgerbar .track i { position: absolute; top: 0; bottom: 0; transition: all .25s; }
+    .ledgerbar .track::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--ink-soft); }
+    .ledgerbar span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .85rem; color: var(--ink-soft); margin: 8px 0; }
+    .verdict { padding: 12px 16px; border-radius: 6px; background: var(--paper-2); border-left: 3px solid var(--accent); }
+    .task { margin-top: 20px; }
+    section.block + section.block { margin-top: 56px; }
+    .formula { font-family: var(--f-display); font-size: 1.15rem; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px; display: inline-block; margin: 4px 0 10px; }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Model · Build 3</p>
+    <h1>Bentham's arguments, as machines</h1>
+    <p class="lede">Three of Bentham's arguments with every number exposed: the felicific calculus, the diminishing utility of money, and the money in the chest. Move the sliders, then solve the three tasks. The seal for this page comes from the tasks, not from looking.</p>
+    <p class="muted" style="max-width:70ch;font-size:.95rem">Bentham never wrote these formulas. They are the simplest models that do what his words say, and every simplification is stated beside the sliders. Where a number is his, the page says so.</p>
+  </header>
+
+  <!-- ===================== 1. calculus ===================== -->
+  <section class="block">
+    <h2>1 · The felicific calculus</h2>
+    <p class="muted" style="max-width:70ch">The value of one pleasure for one person, then the act's tendency, then its extent. Based on the seven circumstances in the <em>Introduction</em> (Hunt p. 130).</p>
+    <div class="formula">value = intensity × duration × certainty × propinquity + fecundity − impurity</div>
+    <div class="card model">
+      <div class="ctl">
+        <label>Intensity <b id="v-I"></b><input type="range" id="I" min="1" max="10" value="6"></label>
+        <label>Duration (hours) <b id="v-D"></b><input type="range" id="D" min="1" max="10" value="3"></label>
+        <label>Certainty <b id="v-C"></b><input type="range" id="C" min="0" max="1" step=".05" value="1">
+          <div class="help">The chance it happens at all.</div></label>
+        <label>Propinquity <b id="v-P"></b><input type="range" id="P" min="0" max="1" step=".05" value="1">
+          <div class="help">1 = now. Smaller = further off. (Our weight; Bentham gave no number.)</div></label>
+        <div class="group">The act's tendency</div>
+        <label>Fecundity: chance of more pleasure <b id="v-fp"></b><input type="range" id="fp" min="0" max="1" step=".05" value="0"></label>
+        <label>…worth <b id="v-fv"></b><input type="range" id="fv" min="0" max="40" value="0"></label>
+        <label>Impurity: chance of a pain after <b id="v-ip"></b><input type="range" id="ip" min="0" max="1" step=".05" value="0">
+          <div class="help">Purity is the chance this does <em>not</em> happen.</div></label>
+        <label>…worth <b id="v-iv"></b><input type="range" id="iv" min="0" max="40" value="0"></label>
+        <div class="group">Extent</div>
+        <label>Persons affected <b id="v-N"></b><input type="range" id="N" min="1" max="20" value="1"></label>
+      </div>
+      <div>
+        <div id="calcbars"></div>
+        <div class="readout">
+          <div><small>Value of the pleasure</small><b id="c-base"></b></div>
+          <div><small>Tendency, one person</small><b id="c-one"></b></div>
+          <div><small>Total, all persons</small><b id="c-all"></b></div>
+        </div>
+        <p class="verdict" id="c-note"></p>
+      </div>
+    </div>
+    <div class="task" id="task1"></div>
+  </section>
+
+  <!-- ===================== 2. utility of money ===================== -->
+  <section class="block">
+    <h2>2 · The labourer and the richest man</h2>
+    <p class="muted" style="max-width:70ch">Utility of an income <em>y</em> is <em>y</em><sup>θ</sup>. Bentham's guess fixes θ: 50,000 times the income gives <em>R</em> times the pleasure, so θ = ln <em>R</em> / ln 50,000 (Hunt p. 133). Ten <span class="k-poor">labourers</span> earn 20 each; one <span class="k-rich">rich man</span> earns 1,000,000, which is 50,000 times as much. A share <em>t</em> of his income is spread equally among the labourers. Bentham's limit, the inducement to labour, is modelled as a loss of output: every income is multiplied by (1 − <em>k</em>·<em>t</em>²).</p>
+    <div class="card model">
+      <div class="ctl">
+        <label>Bentham's ratio R <b id="v-R"></b><input type="range" id="R" min="1.5" max="10" step=".5" value="2">
+          <div class="help">His words: 5 is “a very large … allowance”, 2 “a liberal one.”</div></label>
+        <label>Share of the rich income moved, t <b id="v-t"></b><input type="range" id="t" min="0" max="1" step=".01" value="0"></label>
+        <label>Loss of inducement to labour, k <b id="v-k"></b><input type="range" id="k" min="0" max="2" step=".1" value="0">
+          <div class="help">0 = no effect on output. Our parameter, not Bentham's.</div></label>
+      </div>
+      <div>
+        <div class="readout">
+          <div><small>θ implied by R</small><b id="m-theta"></b></div>
+          <div><small>A pound to the labourer is worth</small><b id="m-mu"></b></div>
+          <div><small>Rich ÷ labourer income</small><b id="m-ratio"></b></div>
+          <div><small>Total output</small><b id="m-out"></b></div>
+        </div>
+        <div id="wchart"></div>
+        <div class="legend"><span><span class="swatch pleasure"></span>total utility (welfare) at each t</span><span>dashed line: your t · dot: the best t</span></div>
+        <p class="verdict" id="m-note"></p>
+      </div>
+    </div>
+    <div class="task" id="task2"></div>
+  </section>
+
+  <!-- ===================== 3. chest ===================== -->
+  <section class="block">
+    <h2>3 · The money in the chest</h2>
+    <p class="muted" style="max-width:70ch">The town begins with spending of 100 at prices of 1.00, enough to employ everyone (capacity 100). Each year a share <em>s</em> of income is saved and a share <em>h</em> of the saving goes “into a chest” instead of being lent out. The government may add new money <em>M</em> each year. Next year's spending = income − <em>s·h</em>·income + <em>M</em>. If spending falls short of capacity at current prices, prices and output both fall; if it exceeds capacity, prices rise (Hunt pp. 132–33, 137).</p>
+    <div class="card model">
+      <div class="ctl">
+        <label>Share of income saved, s <b id="v-s"></b><input type="range" id="s" min="0" max=".4" step=".01" value=".2"></label>
+        <label>Share of saving put in the chest, h <b id="v-h"></b><input type="range" id="h" min="0" max="1" step=".05" value="0">
+          <div class="help">0 = all saving is lent out (early Bentham, Say).</div></label>
+        <label>New money each year, M <b id="v-M"></b><input type="range" id="M" min="0" max="20" step=".5" value="0"></label>
+      </div>
+      <div>
+        <div id="hchart"></div>
+        <div class="legend"><span><span class="swatch pleasure"></span>output (employment)</span><span><span class="swatch rich"></span>price level × 100</span></div>
+        <div class="readout">
+          <div><small>Output after 10 years</small><b id="h-q"></b></div>
+          <div><small>Prices after 10 years</small><b id="h-p"></b></div>
+          <div><small>Hoarded in year 1</small><b id="h-hoard"></b></div>
+        </div>
+        <p class="verdict" id="h-note"></p>
+      </div>
+    </div>
+    <div class="task" id="task3"></div>
+  </section>
+</main>
+<script src="js/site.js"></script>
+<script src="js/learn.js"></script>
+<script src="js/econ.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const F = Econ.fmt;
+let tasksDone = new Set(Ledger.note("model-tasks") || []);
+function taskDone(n) {
+  tasksDone.add(n); Ledger.note("model-tasks", [...tasksDone]);
+  if (tasksDone.size === 3) Ledger.complete("model");
+}
+const doneBefore = id => $(id).insertAdjacentHTML("beforeend", "<p class='muted' style='margin:8px 0 0'>✓ Done before.</p>");
+
+// ---------------- 1. calculus ----------------
+const CK = ["I", "D", "C", "P", "fp", "fv", "ip", "iv", "N"];
+function bar(label, v, max, color) {
+  const w = Math.min(50, Math.abs(v) / max * 50);
+  const left = v >= 0 ? 50 : 50 - w;
+  return `<div class="ledgerbar"><span>${label}</span><span class="track"><i style="left:${left}%;width:${w}%;background:${color}"></i></span><span>${v >= 0 ? "+" : "−"}${F(Math.abs(v), 1)}</span></div>`;
+}
+function drawCalc() {
+  CK.forEach(k => $("v-" + k).textContent = $(k).value);
+  const o = { intensity: +$("I").value, duration: +$("D").value, certainty: +$("C").value, propinquity: +$("P").value,
+              fecundity: { p: +$("fp").value, v: +$("fv").value }, impurity: { p: +$("ip").value, v: +$("iv").value } };
+  const l = Econ.lot(o), N = +$("N").value;
+  const max = 100;
+  $("calcbars").innerHTML = bar("Pleasure itself", l.base, max, "#7fd6b6") + bar("Fecundity", l.fec, max, "#7fd6b6")
+    + bar("Impurity", l.imp, max, "#ef8a8a") + bar("Balance × " + N, l.value * N, max * 2, l.value >= 0 ? "#dcb15f" : "#ef8a8a");
+  $("c-base").textContent = F(l.base, 2);
+  $("c-one").textContent = F(l.value, 2);
+  $("c-all").textContent = F(l.value * N, 2);
+  $("c-note").innerHTML = `${o.intensity} × ${o.duration} × ${o.certainty} × ${o.propinquity} = ${F(l.base, 2)}` +
+    (o.fecundity.p && o.fecundity.v ? `, plus ${o.fecundity.p} × ${o.fecundity.v} = ${F(l.fec, 2)} of further pleasure` : "") +
+    (o.impurity.p && o.impurity.v ? `, minus ${o.impurity.p} × ${o.impurity.v} = ${F(-l.imp, 2)} of pain that follows` : "") +
+    `. ${N > 1 ? `Reaching ${N} persons, the act is worth ${F(l.value * N, 2)} in all.` : "Raise <em>extent</em> to see the legislator's view."}` +
+    (l.value < 0 ? ` <strong>The balance is negative:</strong> by the calculus, this act should not be done.` : "");
+}
+CK.forEach(k => $(k).addEventListener("input", drawCalc));
+drawCalc();
+
+Learn.mcq($("task1"), {
+  label: "Task 1 of 3",
+  q: "<strong>The bottle.</strong> Set intensity 8, duration 2, certainty 1, propinquity 1: an evening's drinking. Now add its tendency: a <strong>0.75</strong> chance of a next-day pain worth <strong>40</strong>, and no fecundity. Should a Benthamite take the bottle?",
+  choices: [
+    { ok: true, t: "No. 16 of pleasure against 30 of expected pain leaves a balance of −14.",
+      fb: "Impurity can outweigh a strong pleasure. Bentham's point is that you judge an act by everything it tends to produce, not by the sensation alone." },
+    { t: "Yes. The pleasure is intense and certain; the pain is only a chance.",
+      fb: "A chance of pain still counts, weighted by its probability: 0.75 × 40 = 30, which is more than the 16 of pleasure." },
+    { t: "Yes. The pain comes the next day, so propinquity makes it worthless.",
+      fb: "Remoteness lowers a value; it does not erase it. And the task set the pain's chance and size directly. Set the sliders and read the balance." },
+    { t: "It cannot be decided without knowing how many people are affected.",
+      fb: "Extent matters to a legislator. For one person deciding for himself, the balance is already negative." } ],
+  onSolve: () => taskDone(1),
+});
+if (tasksDone.has(1)) doneBefore("task1");
+
+// ---------------- 2. utility of money ----------------
+const SOC = { nPoor: 10, yPoor: 20, nRich: 1, yRich: 1e6 };
+function drawMoney() {
+  ["R", "t", "k"].forEach(k => $("v-" + k).textContent = $(k).value);
+  const th = Econ.theta(+$("R").value), k = +$("k").value, t = +$("t").value;
+  const o = Object.assign({ th, k }, SOC);
+  const now = Econ.society(o, t), best = Econ.bestShare(o);
+  // zoom the vertical axis on the interesting part: from a little below welfare at t = 0 to the peak
+  const ymin = Econ.society(o, 0).welfare * .9, ymax = best.welfare + (best.welfare - ymin) * .08;
+  const pts = []; for (let i = 0; i <= 100; i++) { const s = Econ.society(o, i / 100); pts.push([i / 100, Math.max(ymin, s.welfare)]); }
+  $("wchart").innerHTML = Econ.lineSVG([{ points: pts, color: "#7fd6b6" }], { ymin, ymax,
+    xlabel: "share of the rich income moved, t", ylabel: "total utility", xticksAt: [0, .25, .5, .75, 1],
+    xfmt: v => v.toFixed(2), yfmt: v => F(v, 1), vlines: [{ x: t, label: "t = " + t.toFixed(2) }],
+    dots: [{ x: best.t, y: best.welfare, color: "#dcb15f" }], label: "Total utility against the share of the rich income moved" });
+  $("m-theta").textContent = th.toFixed(3);
+  $("m-mu").textContent = F(Econ.mu(SOC.yPoor, th) / Econ.mu(SOC.yRich, th)) + "×";
+  $("m-ratio").textContent = now.ratio >= 10 ? F(now.ratio) + "×" : now.ratio.toFixed(2) + "×";
+  $("m-out").textContent = F(now.output);
+  $("m-note").innerHTML = `With R = ${$("R").value}, a pound in a labourer's hand gives ${F(Econ.mu(SOC.yPoor, th) / Econ.mu(SOC.yRich, th))} times the pleasure of a pound in the rich man's. ` +
+    (k === 0 ? `With no loss of output, total utility keeps rising until incomes are equal (t = ${best.t.toFixed(2)}).`
+             : `With k = ${k}, the best share is t = ${best.t.toFixed(2)}, which leaves the rich man ${best.ratio.toFixed(1)} times a labourer's income. Not equality, as Bentham said.`);
+}
+["R", "t", "k"].forEach(k => $(k).addEventListener("input", drawMoney));
+drawMoney();
+
+const T2 = Econ.bestShare(Object.assign({ th: Econ.theta(2), k: 1 }, SOC));
+Learn.num($("task2"), {
+  label: "Task 2 of 3",
+  q: "<strong>Find Bentham's limit.</strong> Set R = 2 and k = 1. Move t until total utility is as high as it will go. What share t gives the most total utility? (Answer to two decimals.)",
+  answer: +T2.t.toFixed(2), tol: .02,
+  misses: [
+    { when: v => v >= .9, fb: "That is the best share when moving money costs no output (k = 0). With k = 1 the shrinking output pulls the best share down." },
+    { when: v => v <= .05, fb: "At t near 0 the labourers have 20 each and a pound means far more to them than to the rich man. Total utility is still climbing there." },
+    { when: v => v > 1, fb: "t is a share, between 0 and 1." } ],
+  hint: "Watch the dot on the chart; it marks the top of the curve. Move t until the dashed line passes through it.",
+  fbRight: `The top of the curve is at t ≈ ${T2.t.toFixed(2)}. The rich man keeps about ${T2.ratio.toFixed(0)} times a labourer's income: far less inequality than England's, but not equality. Bentham's point exactly.`,
+  onSolve: () => taskDone(2),
+});
+if (tasksDone.has(2)) doneBefore("task2");
+
+// ---------------- 3. chest ----------------
+function runChest(s, h, M, years = 10) {
+  let st = { Y: 100, P: 1, Q: 100 }; const out = [st];
+  for (let i = 0; i < years; i++) { st = Econ.year(st, { s, h, M, F: 100 }); out.push(st); }
+  return out;
+}
+function drawChest() {
+  ["s", "h", "M"].forEach(k => $("v-" + k).textContent = $(k).value);
+  const s = +$("s").value, h = +$("h").value, M = +$("M").value;
+  const run = runChest(s, h, M);
+  $("hchart").innerHTML = Econ.lineSVG([
+      { points: run.map((r, i) => [i, r.Q]), color: "#7fd6b6" },
+      { points: run.map((r, i) => [i, r.P * 100]), color: "#f2b45a", dash: "6 4" } ],
+    { xlabel: "year", xticksAt: [0, 2, 4, 6, 8, 10], ymin: 0, ymax: Math.max(140, ...run.map(r => r.P * 100)) , yfmt: v => F(v),
+      label: "Output and prices over ten years" });
+  const last = run[run.length - 1];
+  $("h-q").textContent = F(last.Q, 1);
+  $("h-p").textContent = last.P.toFixed(2);
+  $("h-hoard").textContent = F(s * h * 100, 1);
+  $("h-note").innerHTML = h === 0 && M === 0
+    ? "All saving is lent out and spent on capital. Spending never falls short: this is Say's law, and early Bentham's view."
+    : last.P > 1.02 ? "More money is coming in than is going into the chest. Output is at capacity, so the extra spending only raises prices."
+    : last.Q < 99.5 ? `Each year ${F(s * h * 100, 1)}% of income goes into the chest. Spending shrinks, and prices and output fall together.`
+    : "New money exactly replaces what goes into the chest. Output stays at capacity and prices hold: “a source of increasing wealth.”";
+}
+["s", "h", "M"].forEach(k => $(k).addEventListener("input", drawChest));
+drawChest();
+
+Learn.num($("task3"), {
+  label: "Task 3 of 3",
+  q: "<strong>Fill the chest's hole.</strong> Set s = 0.20 and h = 0.40. How much new money M must the government add each year to keep output at 100 and prices at 1.00?",
+  answer: 8,
+  misses: [
+    { when: v => v === 20, fb: "20 is everything that is saved. Most of it (60%) is lent out and spent. Only what goes into the chest leaves circulation." },
+    { when: v => v === 12, fb: "12 is the part of saving that is <em>lent out</em>; that part is already spent. Replace the part that is hoarded." },
+    { when: v => v === 40, fb: "h = 0.40 is a share of saving, not of income." },
+    { when: v => v > 8 && v < 20, fb: "Try it on the sliders: prices climb. You are adding more than goes into the chest." },
+    { when: v => v < 8, fb: "Try it on the sliders: output still falls. Not enough is replaced." } ],
+  hint: "Hoarded each year = s × h × income.",
+  fbRight: "0.20 × 0.40 × 100 = 8 goes into the chest each year, so 8 of new money keeps spending at 100. Too little leaves men idle; too much only raises prices.",
+  onSolve: () => taskDone(3),
+});
+if (tasksDone.has(3)) doneBefore("task3");
+</script>
+</body>
+</html>

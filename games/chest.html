@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Money in the Chest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .game { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+    @media (max-width: 960px) { .game { grid-template-columns: minmax(0, 1fr); } }
+    .act { font: 400 2.6rem/1 var(--f-script); color: var(--accent); }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .85rem; color: var(--ink-soft); margin: 6px 0; }
+    .legend i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 5px; }
+    .purses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    @media (max-width: 560px) { .purses { grid-template-columns: 1fr 1fr; } }
+    .purses div { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px; font-size: .82rem; color: var(--ink-soft); }
+    .purses b { display: block; font: 700 1.3rem var(--f-display); font-variant-numeric: tabular-nums; color: var(--ink); }
+    .pred { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    .pred td { padding: 7px 4px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+    .pred .opts { display: flex; gap: 6px; justify-content: flex-end; }
+    .pred .opts button { width: 44px; height: 38px; border-radius: 8px; border: 1.5px solid var(--rule); background: var(--paper-2); color: var(--ink); font: 700 1.1rem var(--f-body); cursor: pointer; }
+    .pred .opts button:hover:not(:disabled) { border-color: var(--accent); }
+    .pred .opts button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    .pred .opts button.correct { outline: 2px solid var(--right); outline-offset: 1px; }
+    .pred .opts button:disabled { cursor: default; }
+    .pred .mark { width: 26px; text-align: center; font-weight: 700; }
+    .pred .why { font-size: .9rem; color: var(--ink-soft); padding-top: 0; }
+    .event { padding: 12px 16px; background: var(--paper-2); border-left: 3px solid var(--accent); border-radius: 6px; margin: 10px 0; }
+    .rules { padding: 12px 16px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; margin: 10px 0; font-size: .93rem; }
+    .rules p:last-child { margin-bottom: 0; }
+    .tally { font: 700 1rem var(--f-display); color: var(--ink-soft); text-align: right; }
+    .tally b { color: var(--accent); font-size: 1.3rem; }
+    .ledgerrow { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .95rem; margin: 10px 0; }
+    .ledgerrow td { padding: 5px 6px; border-bottom: 1px solid var(--rule); }
+    .ledgerrow td:last-child { text-align: right; }
+    .formula { font-variant-numeric: tabular-nums; font-size: .95rem; }
+  </style>
+</head>
+<body data-root="../" data-step="g-chest">
+<main class="wrap">
+  <header class="page-head" style="padding-bottom:16px">
+    <p class="eyebrow"><a href="../play.html" style="text-decoration:none">Play and Learn</a> · Game 3</p>
+    <h1>The Money in the Chest</h1>
+    <p class="lede">Can saving ever hurt a nation? The young Bentham said no. Later he said yes, if the money is put "into a chest" and kept there. Forecast what happens year by year. Then advise the government how much new money to issue.</p>
+  </header>
+
+  <div class="game">
+    <div>
+      <div class="card">
+        <div class="legend"><span><i style="background:#8fbdf0"></i>Output, % of capacity (employment)</span><span><i style="background:#d9cfbd"></i>Price level (start = 100)</span><span><i style="background:#dcb15f;height:0;border-top:2px dashed #dcb15f"></i>Capacity</span></div>
+        <div id="chart"></div>
+        <div class="purses">
+          <div>Spending<b id="sY">1,000</b>Y, this year</div>
+          <div><span class="k-poor">Output</span><b id="sQ">100%</b>of capacity</div>
+          <div>Price level<b id="sP">100</b>start = 100</div>
+          <div>In the chest<b id="sH">0</b>hoarded so far</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3 style="font-size:1.15rem;margin-bottom:4px">The rules of this economy</h3>
+        <div class="formula">
+          <p style="margin-bottom:.6em">Capacity output <strong>F = 1,000</strong> (what every willing worker can make in a year). Savers put aside a share <strong>s = 0.15</strong> of income. A share <strong>h</strong> of their savings goes into a chest; the rest is lent and spent by borrowers. The government may issue new money <strong>M</strong>.</p>
+          <p style="margin-bottom:.6em">Next year's spending: <strong>D = Y − s·h·Y + M</strong>.<br>Compare it with what capacity output costs at last year's prices: <strong>g = D ÷ (F × P)</strong>.</p>
+          <p style="margin-bottom:.6em">If <strong>g &lt; 1</strong>, the price level becomes P × √g and output becomes F × √g. If <strong>g ≥ 1</strong>, output is at capacity and the price level becomes P × g.</p>
+          <p class="muted" style="margin:0;font-size:.85rem">A simplified, stated version of the argument in Hunt &amp; Lautzenheiser, pp. 132–33. Hunt reports no numbers for this argument; the numbers here are ours. Prices are shown as an index (P = 1 at the start is shown as 100).</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+        <div class="act" id="act">Act I</div>
+        <div class="tally" id="tallybox">Forecasts right <b id="tally">0</b>/<span id="of">0</span></div>
+      </div>
+      <div id="stage"></div>
+    </div>
+  </div>
+</main>
+<script src="../js/site.js"></script>
+<script src="../js/learn.js"></script>
+<script src="../js/econ.js"></script>
+<script>
+(function () {
+if (document.body.dataset.locked) return;
+const $ = id => document.getElementById(id);
+const fm = Econ.fmt;
+
+// ---- pure (tested in node) ----
+const S = 0.15, F = 1000;
+const START = { Y: 1000, P: 1, Q: 1000 };
+const ACT2 = [0.4, 0.4, 0.6, 0, 0.4];          // the frugality path of Act II (h each year)
+const YEARS3 = 8, NEED3 = 6, BAND = 0.005;     // Act III: 8 years, 6 on target, g within ±0.5%
+const r1 = v => Math.round(v * 10) / 10, r4 = v => Math.round(v * 10000) / 10000;
+// One year of the model. The state is rounded to what the player sees (Y and Q to 0.1, P to 4 places).
+function step(st, h, M) {
+  const n = Econ.year(st, { s: S, h, M, F });
+  return { Y: r1(n.Y), P: r4(n.P), Q: r1(n.Q), g: n.g, hoard: n.hoard, M };
+}
+const dir = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a)) ? "=" : b > a ? "↑" : "↓";
+// The new money that makes this year's spending buy capacity output at last year's prices (g = 1).
+const needM = (st, h) => F * st.P - (1 - S * h) * st.Y;
+const onTarget = g => Math.abs(g - 1) <= BAND + 1e-12;
+// ---- end pure ----
+
+const VARS = [["spend", "Spending (D against this year's Y)"], ["output", "Output"], ["price", "Price level"]];
+let st, path, hoarded, right, asked, turn, hits, hs3, year3;
+
+function pct(q) { return fm(q / F * 100, 1) + "%"; }
+function idx(p) { return fm(p * 100, 2); }
+
+function draw() {
+  const out = path.map((p, i) => [i, p.Q / F * 100]), pr = path.map((p, i) => [i, p.P * 100]);
+  const all = out.concat(pr).map(p => p[1]);
+  const ymin = Math.min(70, Math.floor((Math.min(...all) - 3) / 10) * 10), ymax = Math.max(110, Math.ceil((Math.max(...all) + 3) / 10) * 10);
+  const vl = [];
+  if (path.length > 1) vl.push({ x: 1, label: "Act II" });
+  if (path.length > 6) vl.push({ x: 6, label: "Act III" });
+  $("chart").innerHTML = Econ.lineSVG([
+    { points: [[0, 100], [Math.max(14, path.length - 1), 100]], color: "#dcb15f", dash: "6 5", width: 1.5 },
+    { points: out, color: "#8fbdf0" },
+    { points: pr, color: "#d9cfbd" },
+  ], { xmin: 0, xmax: Math.max(14, path.length - 1), ymin, ymax, yticks: (ymax - ymin) / 10, yfmt: v => Math.round(v),
+       xticksAt: [0, 2, 4, 6, 8, 10, 12, 14], xfmt: v => "yr " + v, vlines: vl,
+       dots: [{ x: path.length - 1, y: path[path.length - 1].Q / F * 100, color: "#8fbdf0", r: 4 }, { x: path.length - 1, y: path[path.length - 1].P * 100, color: "#d9cfbd", r: 4 }],
+       label: "Output and the price level, year by year" });
+  const now = path[path.length - 1];
+  $("sY").textContent = fm(now.Y, 1); $("sQ").textContent = pct(now.Q); $("sP").textContent = idx(now.P); $("sH").textContent = fm(hoarded, 1);
+}
+function tally(kind) {
+  $("tallybox").innerHTML = kind === 3
+    ? `Years on target <b id="tally">${hits}</b>/<span id="of">${year3}</span>`
+    : `Forecasts right <b id="tally">${right}</b>/<span id="of">${asked}</span>`;
+}
+
+// ---------- Acts I and II: forecasts ----------
+const ACT1_STORY = `<p><strong>Bentham in his early writings</strong> took the view held by "nearly all of the economists of his generation, except Malthus and a few lesser-known writers": in a free market, aggregate supply always equals aggregate demand, because "any saving was automatically converted into more capital with which to employ more labor" (Hunt, p. 132).</p>
+  <blockquote class="q">“Whoever saves money,” Bentham asserted, “adds proportionately to the general mass of capital.” <span class="cite">(Hunt, p. 132)</span></blockquote>
+  <p style="margin-top:12px">This year spending is <strong>Y = 1,000</strong>, output is at capacity, and the price level is 100. Savers put aside 15 percent of income, but <strong>none of it goes into a chest (h = 0)</strong>: every penny saved is lent.</p>`;
+const STORIES = [
+  `<p><strong>By 1801</strong>, Hunt reports, Bentham's opinion had changed: “I have not … any horror, sentimental or anarchical, of the hand of government” (p. 132). One reason was saving.</p>
+   <blockquote class="q">“Suppose an increase in the habit of frugality,” he wrote. “Its first effect will be to diminish the mass of expenditure on consumption.” Suppose, he continued, that the money, “instead of being put into circulation, is for an indefinite time put into a chest and kept there.” <span class="cite">(Hunt, p. 133)</span></blockquote>
+   <p style="margin-top:12px">This year <strong>h = 0.4</strong>: four tenths of all savings go into chests.</p>`,
+  `<p>The habit holds. Again <strong>h = 0.4</strong> of savings go into the chest.</p>`,
+  `<p>Frugality spreads. Now <strong>h = 0.6</strong>: six tenths of all savings go into the chest.</p>`,
+  `<p>The savers stop adding to their chests: this year <strong>h = 0</strong>, and everything saved is lent. But they do not open the chests. What was hoarded stays hoarded.</p>`,
+  `<p>The habit returns. Four tenths of savings go into the chest again: <strong>h = 0.4</strong>.</p>`,
+];
+
+function forecast() {
+  const act1 = turn === 0, h = act1 ? 0 : ACT2[turn - 1];
+  $("act").textContent = act1 ? "Act I" : `Act II · year ${turn}`;
+  const label = act1 ? "Forecast for next year" : `Forecast for year ${turn}`;
+  $("stage").innerHTML = `<div class="event">${act1 ? ACT1_STORY : STORIES[turn - 1]}</div>
+    <p style="margin:12px 0 0"><strong>${label}:</strong> compared with now, what happens to each? (Use the rules on the left.)</p>
+    <table class="pred">${VARS.map(([k, lab]) => `<tr data-k="${k}"><td>${lab}</td>
+      <td><div class="opts">${["↑", "=", "↓"].map(d => `<button type="button" data-d="${d}" aria-label="${lab}: ${d === "↑" ? "rises" : d === "↓" ? "falls" : "stays the same"}">${d}</button>`).join("")}</div></td>
+      <td class="mark"></td></tr><tr class="hidden" data-w="${k}"><td colspan="3" class="why"></td></tr>`).join("")}</table>
+    <button class="btn primary" id="adv" disabled>Play out the year</button>`;
+  const pick = {};
+  $("stage").querySelectorAll("tr[data-k]").forEach(tr => tr.querySelectorAll("button").forEach(b => b.onclick = () => {
+    pick[tr.dataset.k] = b.dataset.d;
+    tr.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+    $("adv").disabled = Object.keys(pick).length < VARS.length;
+  }));
+  $("adv").onclick = () => resolve(h, pick);
+}
+
+function whyText(a, b, h) {
+  const saved = S * a.Y, hoard = S * h * a.Y, cap = F * a.P, Qnew = b.Q;
+  const spend = h > 0
+    ? `Savers put aside s × Y = ${fm(saved, 1)}. A share h = ${h} of that, ${fm(hoard, 1)}, goes into the chest, where nobody spends it. Spending falls from ${fm(a.Y, 1)} to ${fm(b.Y, 1)}.`
+    : `The ${fm(saved, 1)} saved is all lent, and borrowers spend it on capital and wages. Nothing new goes into a chest, so spending stays at ${fm(a.Y, 1)}.${turn === 0 ? " Saving changes what is bought, not how much." : ""}`;
+  const price = b.g < 1 - 1e-12
+    ? `g = D ÷ (F × P) = ${fm(b.Y, 1)} ÷ ${fm(cap, 1)} = ${fm(b.g, 3)}. Spending cannot buy capacity output at last year's prices, so prices fall: ${idx(a.P)} × √g = ${idx(b.P)}.`
+    : `g = ${fm(b.Y, 1)} ÷ ${fm(cap, 1)} = ${fm(b.g, 3)}. Spending buys capacity output at last year's prices exactly, so prices hold at ${idx(b.P)}.`;
+  let output;
+  if (b.g >= 1 - 1e-12) output = `Output stays at capacity, ${fm(F)}. Every man who wants work has it.`;
+  else if (Qnew < a.Q) output = `Output becomes F × √g = ${fm(Qnew, 1)}, down from ${fm(a.Q, 1)}. Goods go unsold and ${fm(100 - Qnew / F * 100, 1)}% of the men who want work have none.`;
+  else output = `Output becomes F × √g = ${fm(Qnew, 1)}, up from ${fm(a.Q, 1)}. Prices have fallen so far that the same money buys more goods, so some men are taken back on. But output is still below capacity and prices are still falling: the money in the chest is still out of circulation.`;
+  return { spend, price, output };
+}
+
+function resolve(h, pick) {
+  const a = st, b = step(st, h, 0);
+  const truth = { spend: dir(a.Y, b.Y), output: dir(a.Q, b.Q), price: dir(a.P, b.P) };
+  const why = whyText(a, b, h);
+  let got = 0;
+  VARS.forEach(([k]) => {
+    const tr = $("stage").querySelector(`tr[data-k="${k}"]`), ok = pick[k] === truth[k];
+    if (ok) got++;
+    tr.querySelector(".mark").innerHTML = ok ? `<span style="color:var(--right)">✓</span>` : `<span style="color:var(--wrong)">✗</span>`;
+    tr.querySelectorAll("button").forEach(x => { x.disabled = true; if (x.dataset.d === truth[k]) x.classList.add("correct"); });
+    const w = $("stage").querySelector(`tr[data-w="${k}"]`);
+    w.classList.remove("hidden");
+    w.querySelector("td").innerHTML = (ok ? "" : `<strong style="color:var(--wrong)">It ${truth[k] === "↑" ? "rose" : truth[k] === "↓" ? "fell" : "stayed the same"}.</strong> `) + why[k];
+  });
+  right += got; asked += VARS.length; tally(1);
+  st = b; hoarded += b.hoard; path.push(b); draw();
+  const last = turn === ACT2.length;
+  let note = "";
+  if (turn === 0) note = `<div class="event"><strong>Say's world.</strong> With h = 0, saving is no leak: what one man does not spend, the borrower spends. Spending, output, and prices all stand still. This is the view the young Bentham shared with Say: “no regulations nor any efforts whatsoever, either on the part of subjects or governors, can raise the quantity of wealth produced during a given period” (Hunt, p. 132).</div>`;
+  if (turn === 4) note = `<div class="event"><strong>Look at the chart.</strong> Output recovers only because prices fall, so the reduced stock of money in circulation buys more goods. Bentham drew the dark side of that fall: with falling prices “profits would decline and so would investment” (Hunt's summary, p. 133). Our model leaves profits out.</div>`;
+  $("adv").outerHTML = note + `<div style="margin-top:14px"><button class="btn primary" id="next">${last ? "End of Act II" : turn === 0 ? "Act II: the chest" : "Next year"}</button></div>`;
+  $("next").onclick = () => { turn++; turn <= ACT2.length ? forecast() : endAct2(); };
+}
+
+function endAct2() {
+  const need = Math.ceil(asked * 0.7), pass = right >= need;
+  $("act").textContent = "Act II · over";
+  $("stage").innerHTML = `<h2 style="font-size:1.6rem">${pass ? "You read the chest" : "Not yet"}</h2>
+    <p>You forecast <strong>${right} of ${asked}</strong> movements correctly.${pass ? "" : ` Act III needs ${need}. Watch three things: spending falls only in a year when money goes into the chest; prices fall whenever g is below 1; and output is F × √g, which can be above last year's output even while prices are falling.`}</p>
+    <p>After five years, prices stand at ${idx(st.P)} and ${fm(100 - st.Q / F * 100, 1)}% of the men who want work have none. ${fm(hoarded, 1)} has gone into chests.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">${pass ? `<button class="btn primary" id="go3">Act III: advise the government</button>` : ""}<button class="btn${pass ? "" : " primary"}" id="again2">Replay Acts I and II</button></div>`;
+  if (pass) $("go3").onclick = startAct3;
+  $("again2").onclick = start;
+}
+
+// ---------- Act III: the money supply ----------
+let act2End;
+function startAct3() {
+  act2End = { st: Object.assign({}, st), path: path.slice(), hoarded };
+  hs3 = Array.from({ length: YEARS3 }, () => Econ.rnd(20, 60) / 100);
+  hits = 0; year3 = 0; tally(3);
+  advise();
+}
+function advise() {
+  const h = hs3[year3];
+  $("act").textContent = `Act III · year ${year3 + 1} of ${YEARS3}`;
+  const intro = year3 === 0 ? `<div class="event"><p>Bentham's remedy: if the government increases the money in circulation, “then the money introduced … becomes a source of increasing wealth” (Hunt, p. 133).</p>
+      <p style="margin:0">You advise the government for ${YEARS3} years. Each year a new frugality shock h arrives, somewhere between 0.20 and 0.60. You set the new money M. A year counts if spending lands within half a percent of what capacity output costs at last year's prices (0.995 ≤ g ≤ 1.005). Too little leaves men idle. Too much only raises prices. You need ${NEED3} good years.</p></div>` : "";
+  $("stage").innerHTML = intro + `<table class="ledgerrow">
+      <tr><td>Spending this year, Y</td><td>${fm(st.Y, 1)}</td></tr>
+      <tr><td>Price level, P</td><td>${fm(st.P, 4)} <span class="muted">(index ${idx(st.P)})</span></td></tr>
+      <tr><td>Output now</td><td>${fm(st.Q, 1)} <span class="muted">(${pct(st.Q)})</span></td></tr>
+      <tr><td>Capacity, F</td><td>${fm(F)}</td></tr>
+      <tr><td>Saving share, s</td><td>${S}</td></tr>
+      <tr><td><strong>This year's frugality shock, h</strong></td><td><strong>${h.toFixed(2)}</strong></td></tr></table>
+    <div class="numrow"><label for="m">New money M =</label><input type="number" id="m" step="any" min="0" inputmode="decimal"><button class="btn small primary" id="issue">Issue it</button></div>
+    <p class="muted" style="font-size:.88rem;margin-top:8px">${year3 === 0 ? "Hint: spending must reach F × P, the cost of capacity output at last year's prices. What D would be with M = 0, and how far short is it?" : "Hint: D = Y − s·h·Y + M must equal F × P."}</p>
+    <div class="feedback" id="fb3"></div><div id="nx3"></div>`;
+  const go = () => {
+    const M = parseFloat($("m").value);
+    if (isNaN(M) || M < 0) { const f = $("fb3"); f.className = "feedback show bad"; f.innerHTML = "Type an amount of new money, zero or more."; return; }
+    $("m").disabled = $("issue").disabled = true;
+    const a = st, b = step(st, h, M), need = needM(a, h), ok = onTarget(b.g);
+    if (ok) hits++;
+    year3++; tally(3);
+    let msg;
+    if (ok) msg = `<strong>On target.</strong> g = ${fm(b.g, 4)}. Capacity output sells and prices hold steady (${idx(a.P)} → ${idx(b.P)}). Full employment, stable prices.`;
+    else if (b.g < 1) msg = `<strong>Too little.</strong> g = ${fm(b.g, 4)}. Prices fall from ${idx(a.P)} to ${idx(b.P)} and output to ${pct(b.Q)} of capacity: ${fm(100 - b.Q / F * 100, 1)}% of the men who want work have none.`;
+    else msg = `<strong>Too much.</strong> g = ${fm(b.g, 4)}. Output cannot pass capacity, so the extra money only raises prices, from ${idx(a.P)} to ${idx(b.P)} (${fm((b.g - 1) * 100, 1)}%).`;
+    const work = `<br><em>Worked answer:</em> with M = 0, D = Y − s·h·Y = ${fm(a.Y, 1)} − ${S} × ${h.toFixed(2)} × ${fm(a.Y, 1)} = ${fm((1 - S * h) * a.Y, 1)}. Capacity at last year's prices costs F × P = ${fm(F * a.P, 1)}. So M = ${fm(F * a.P, 1)} − ${fm((1 - S * h) * a.Y, 1)} = <strong>${fm(need, 1)}</strong>.${Math.abs(a.Y - F * a.P) < 0.5 ? ` The economy started the year at capacity (Y = F × P), so this is simply s·h·Y.` : ""} You issued ${fm(M, 1)}.`;
+    const f = $("fb3"); f.className = "feedback show " + (ok ? "good" : "bad"); f.innerHTML = msg + work;
+    st = b; hoarded += b.hoard; path.push(b); draw();
+    $("nx3").innerHTML = `<button class="btn primary" style="margin-top:12px" id="n3">${year3 < YEARS3 ? "Next year" : "End of Act III"}</button>`;
+    $("n3").onclick = () => year3 < YEARS3 ? advise() : endAct3();
+  };
+  $("issue").onclick = go; $("m").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+}
+function endAct3() {
+  const pass = hits >= NEED3;
+  $("act").textContent = "Act III · over";
+  $("stage").innerHTML = `<h2 style="font-size:1.6rem">${pass ? "Money as a source of wealth" : "Not yet"}</h2>
+    <p>${hits} of ${YEARS3} years at full employment with stable prices.${pass ? "" : ` The seal needs ${NEED3}. Each year, find the gap between F × P and what spending would be with no new money. The shock changes every year, so the answer does too.`}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">${pass ? `<button class="btn primary" id="toSay">Say replies</button>` : `<button class="btn primary" id="again3">Replay Act III (new shocks)</button>`}</div>`;
+  if (pass) $("toSay").onclick = sayReplies;
+  else $("again3").onclick = () => { st = Object.assign({}, act2End.st); path = act2End.path.slice(); hoarded = act2End.hoarded; draw(); startAct3(); };
+}
+
+// ---------- Say's reply and the debrief ----------
+function sayReplies() {
+  $("act").textContent = "Say replies";
+  $("stage").innerHTML = `<div class="event"><p><strong>J.-B. Say</strong> defended in a long exchange of letters with Malthus his belief that there could never be a general glut. In a market economy specialized producers exchange their products. In Hunt's summary, money “had no inherent importance but was merely a means of facilitating exchange.” No one produces except to exchange his production for someone else's. So supply creates a demand of the same size (Hunt, p. 137).</p>
+      <blockquote class="q">“Produce opens a vent for produce.” <span class="cite">(Say, quoted in Hunt, p. 137)</span></blockquote>
+      <blockquote class="q">“If there is an overstock, of many kinds of goods, it is because other goods are not produced in sufficient quantities.” <span class="cite">(Say, quoted in Hunt, p. 138)</span></blockquote>
+      <p style="margin:12px 0 0">A glut of some goods means a shortage of others, and the two cancel out in the aggregate. Prices and the movement of capitalists from low-profit to high-profit trades clear both (pp. 137–38).</p></div>
+    <div id="q4"></div><div id="debrief"></div>`;
+  Learn.mcq($("q4"), { label: "Name the assumption", q: "Say and the later Bentham both accept that people save. Which single assumption separates Say's law from Bentham's chest?",
+    choices: [
+      { ok: true, t: "Whether money is only a means of exchange (h = 0) or can be kept idle in a chest (h > 0).",
+        fb: "In your Act I, h = 0 and Say's law held exactly. Every result of Act II came from h > 0. Nothing else in the model changed." },
+      { t: "Whether frugality is a virtue: Say praises saving, while the later Bentham condemns it.", fb: "Bentham does not condemn saving; his remedy is new money, not less frugality. Both men take saving for granted. Say even calls frugality “next of kin to the actual creation of products” (Hunt, p. 136). In the game s = 0.15 throughout; Act I saved just as much as Act II." },
+      { t: "Whether prices can fall: Say's gluts clear by price changes, Bentham's cannot.", fb: "In Bentham's chest prices do fall (Hunt, p. 133), and Say's own account of partial gluts runs on price changes (pp. 137–38). Flexible prices are common ground." },
+      { t: "Whether the rich man's last pound gives him so little pleasure that he hoards it in a chest.", fb: "That mixes Bentham's diminishing marginal utility with the chest. Diminishing marginal utility is Bentham's argument for redistribution (p. 133), a different case for government. The chest needs nothing about utility: it is about money leaving circulation." },
+      { t: "Whether particular trades can be overproduced while others go short.", fb: "Say grants that some goods can be in glut, offset by shortages of others (p. 138). The dispute is over a glut of all goods at once." },
+    ],
+    onSolve: debrief });
+}
+function debrief() {
+  $("debrief").innerHTML = `<h2 style="font-size:1.6rem;margin-top:22px">What you should be able to say</h2>
+    <ol><li><strong>Early Bentham, with Say:</strong> “Whoever saves money,” he asserted, “adds proportionately to the general mass of capital.” Saving is lent and spent, so it cannot shrink demand (h = 0).</li>
+      <li><strong>Bentham after the change:</strong> if frugality puts money “into a chest,” spending falls, then prices and output fall and men lose work. The fall goes on for as long as money keeps going into the chest.</li>
+      <li><strong>The remedy:</strong> new money that fills the gap keeps spending equal to F × P. At capacity that is M = s·h·Y. Too little leaves men idle; too much only raises prices. Then “the money introduced … becomes a source of increasing wealth.”</li></ol>
+    <p><strong>Where it lines up with modern economics.</strong> In later terms, h is a demand for money held idle, and Act III is a money-supply rule that offsets it. Hunt lists the economists who rejected Say's law: “Malthus, Bentham (in his later writings), Karl Marx, and John Maynard Keynes” (p. 137).</p>
+    <p><strong>What the model leaves out.</strong> Bentham added that profits and investment would decline (Hunt's summary, p. 133); capacity here never grows or shrinks. And Act III assumes a government that knows s, h, and Y each year and acts only for the public. Hunt doubts that such a government exists (p. 134). You will meet that objection in the Tribunal.</p>
+    <p><strong>For the course question.</strong> Early Bentham saw harmony: the market turns every saving into employment. Later Bentham saw the market fail on its own terms. The same man holds both views, a split Hunt calls “a split or antagonism” (p. 134).</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px"><a class="btn primary" href="tribunal.html">Next: The Tribunal of Utility →</a><button class="btn" id="replayAll">Play again from Act I</button></div>`;
+  Ledger.complete("g-chest", { forecasts: right + "/" + asked, years: hits + "/" + YEARS3 });
+  $("replayAll").onclick = start;
+  Learn.open($("debrief"), true);
+}
+
+function start() {
+  st = Object.assign({}, START); path = [Object.assign({ g: 1, hoard: 0 }, START)]; hoarded = 0;
+  right = 0; asked = 0; turn = 0; tally(1); draw(); forecast();
+}
+start();
+})();
+</script>
+</body>
+</html>

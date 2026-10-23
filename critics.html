@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Critics and Legacy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .era { margin: 52px 0 18px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+    .era h2 { margin: 0; }
+    .era span { color: var(--ink-soft); font-style: italic; }
+    .person { display: grid; grid-template-columns: 160px 1fr; gap: 24px; align-items: start; }
+    .person + .person { margin-top: 24px; }
+    .person .role { color: var(--accent); font-family: var(--f-display); font-weight: 600; font-size: 1.1rem; margin: -4px 0 8px; }
+    .person .years { color: var(--ink-soft); font-size: .95rem; }
+    .person .hook { font-size: 1.02rem; }
+    @media (max-width: 620px) { .person { grid-template-columns: 1fr; } .person .portrait-frame { max-width: 180px; } }
+    .tally { position: sticky; top: 72px; z-index: 5; background: rgba(14,33,29,.92); padding: 8px 0; color: var(--ink-soft); font-size: .92rem; }
+    .verdict { margin-top: 56px; border-top: 3px double var(--rule); padding-top: 28px; }
+  </style>
+</head>
+<body data-step="critics">
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Critics &amp; Legacy</p>
+    <h1>Who fought Bentham, and who carried him forward</h1>
+    <p class="lede">Ten thinkers, from a forerunner in 1651 to a 1997 paper titled “Back to Bentham?” Each card stays half-closed until you name the Benthamite doctrine that person attacked or built on. You can only do that if you know the doctrines.</p>
+  </header>
+  <div class="tally" id="tally"></div>
+  <div id="people"></div>
+
+  <section class="verdict prose">
+    <h2>Harmony or conflict?</h2>
+    <p>Bentham answers this course's question twice. The <strong>early Bentham</strong>, writing in the late eighteenth century, is a writer of harmony. Each person seeks his own pleasure, and the free market allocates resources “in the most socially beneficial manner possible,” in Hunt's phrase: “no regulations nor any efforts whatsoever … can raise the quantity of wealth produced.” Nor can there be a glut: “Whoever saves money,” he wrote, “adds proportionately to the general mass of capital,” the belief later called Say's law. Hunt says the utility tradition's “perceived social harmony of all persons' interests” rests on everyone's dependence on the market (pp. 127, 132, 137).</p>
+    <p>The <strong>later Bentham</strong>, by 1801, sees two places where the market leaves happiness on the table. Money saved may be “put into a chest and kept there,” so that prices, production, and profits fall. And because each extra pound brings less pleasure, a labourer and a man fifty thousand times richer cannot be fifty thousand times apart in happiness: “Five times the labourer's seems a very large, not to say excessive allowance.” So he called in “the hand of government,” though he stopped short of equality, since the labourer still needs an inducement to labour. His benchmark was the inequality of “the Anglo-American United States: meaning always those in which slave-holding has no place,” which Hunt notes was then substantially less than England's (pp. 132–34).</p>
+    <p>Notice what kind of conflict this is. In Hunt's account Bentham does not speak of classes whose incomes come from opposite sources, as Ricardo's wages and profits do. He speaks of rich and poor persons whose pleasures can be added up, with a fair legislator to settle the account. Hunt's objection is that, on Bentham's own theory, legislators are egoists too, and must ask whether they gain more by serving the poor or the rich (p. 134). The successors chose sides. Senior struck out the premises behind redistribution and kept the harmony (pp. 144–45, 149); Robbins later ruled the comparison out of science. Hunt adds that Bentham's own split, laissez-faire against reform, reappears inside neoclassical economics (p. 134). Hunt himself reads the whole utility tradition as a way of removing the class conflict that Smith's and Ricardo's labour theory had exposed (p. 127). So where does Bentham land? He founded the theory of harmony, and then, from inside it, gave the first utilitarian reasons to doubt it.</p>
+  </section>
+  <p class="cite" style="margin-top:28px">Based on Hunt &amp; Lautzenheiser, pp. 125–137 and 144–147. Quotations from Marx, J. S. Mill, Rawls, and the summaries of Jevons, Edgeworth, Robbins, and Kahneman come from the works listed on the <a href="sources.html">Sources</a> page.</p>
+</main>
+<script src="js/site.js"></script>
+<script src="js/learn.js"></script>
+<script>
+const D = {
+  egoism: "Self-preference: every person is a calculating egoist",
+  greatest: "The greatest happiness of the greatest number as the measure of right and wrong",
+  quantity: "Pleasures differ only in quantity (push-pin is as good as poetry)",
+  calc: "Pleasure can be measured: its intensity, its duration, and the other circumstances",
+  value: "All value is founded on utility",
+  dmu: "Each extra pound gives less pleasure, so redistribution raises total happiness",
+  compare: "The pleasures of different people can be compared (the labourer and the richest man)",
+  chest: "Money saved may sit idle in a chest, so government may need to add money",
+  felt: "Utility means pleasure and pain as actually felt",
+};
+const ERAS = [
+  ["Before and beside him", "1651, and his own lifetime"],
+  ["The nineteenth century: heirs and enemies", "1830s–1860s"],
+  ["The marginalists build on the calculus", "1870s–1880s"],
+  ["The twentieth century takes it apart, and goes back", "1938–1997"],
+];
+// tag: ally / critic / mixed.  not: doctrines too close to the right answer to serve as wrong choices.
+const PEOPLE = [
+  { era: 0, name: "Thomas Hobbes", years: "Leviathan, 1651", role: "Forerunner", tag: "ally", img: "hobbes.jpg",
+    hook: "Hunt's starting point for the utility tradition: a philosopher who thought that without a sovereign, life would be “solitary, poor, nasty, brutish, and short.”",
+    ask: "Hobbes wrote that pity “ariseth from the imagination that the like calamity may befall himself.” Which Bentham doctrine did he anticipate?",
+    ans: "egoism", not: [], miss: "Hobbes is explaining even compassion as a disguise for something. For what?",
+    body: `<p>For Hobbes all human motives, even compassion, were, in Hunt's words, “so many disguises for egoistic self-interest,” and the war of each against all could end only by submission to an absolute power. Hunt reads this as the self-image of people living through the rise of capitalist relations. Bentham kept the egoism (“Self-preference has place everywhere”), and later writers, Hunt says, replaced the absolute monarch with the “invisible hand” of the market (pp. 126, 131).</p>` },
+  { era: 0, name: "Jean-Baptiste Say", years: "1767–1832", role: "French contemporary", tag: "mixed", img: "say.png",
+    hook: "He considered himself a disciple of Adam Smith. A historian quoted by Hunt says he “purged” Smith of “dangerous thoughts.”",
+    ask: "Say wrote: “The utility of things is the ground-work of their value, and their value constitutes wealth.” Which Bentham doctrine does this echo?",
+    ans: "value", not: ["chest"], miss: "The quotation is about where value comes from.",
+    body: `<p>Smith, Say wrote, ascribed “to the labour of man alone … the power of producing values. This is an error.” Labour, capital, and land were coequal “productive agencies” creating utility, so there was no difference in principle between working and owning, and political economy proved “that the interest of the rich and poor … are not opposed.” But Say's law, that a general glut is impossible, was exactly what the later Bentham rejected with his money in the chest; Hunt puts him beside Malthus, Marx, and Keynes on that point (pp. 134–37).</p>` },
+  { era: 1, name: "Nassau William Senior", years: "1790–1864", role: "Oxford's first professor of political economy", tag: "mixed", img: "senior.png",
+    hook: "Like Bentham, he reduced economic behaviour to maximizing utility and thought work was painful. Then he removed the egalitarian half of Bentham.",
+    ask: "Senior wrote that “no person feels his whole wants to be adequately supplied; . . . every person has some unsatisfied desires which he believes that additional wealth would gratify.” Which Bentham doctrine was he taking apart?",
+    ans: "dmu", not: ["compare"], miss: "Bentham's case for redistribution assumed that the very rich get little from one more pound. What does Senior say about the very rich?",
+    body: `<p>Hunt finds two premises under Bentham's case for redistribution: that people can become so wealthy they are nearly satiated, and that the utilities of two people can be compared. Senior denied both: wants are never fully supplied, and their urgency is “as various as the differences in individual character.” Hunt's comment: later utility theorists, “much more conservative than Bentham,” needed to deny these “egalitarian premises.” Senior also turned Bentham's painful labour into painful “abstinence,” the capitalist's claim to profit (pp. 144–47).</p>` },
+  { era: 1, name: "Karl Marx", years: "Capital, vol. I, 1867", role: "Critic of capitalism", tag: "critic", img: "marx.png",
+    hook: "He called Bentham “the arch-Philistine, Jeremy Bentham, that insipid, pedantic, leather-tongued oracle” of bourgeois common sense.",
+    ask: "Marx: “With the driest naiveté he takes the modern shopkeeper, especially the English shopkeeper, as the normal man.” Which Bentham doctrine is he attacking?",
+    ans: "egoism", not: [], miss: "Marx is objecting to Bentham's picture of what every human being is like.",
+    body: `<p>Bentham said self-preference “has place everywhere.” In Marx's reading, this “normal man” was really the English shopkeeper of his own century. He added that “the principle of utility was no discovery of Bentham,” and: “Had I the courage of my friend, Heinrich Heine, I should call Mr. Jeremy a genius in the way of bourgeois stupidity.” Hunt's chapter opens with the same charge in calmer words: utility theory takes conditions produced by capitalism and projects them onto “all human beings in all societies” (pp. 125–26).</p>` },
+  { era: 1, name: "John Stuart Mill", years: "Utilitarianism, 1861", role: "Raised a Benthamite", tag: "mixed", img: "mill.png",
+    hook: "His father, James Mill, founded the Westminster Review with Bentham and raised him on Benthamite principles. As an adult he defended utilitarianism, and changed it.",
+    ask: "“It is better to be a human being dissatisfied than a pig satisfied; better to be Socrates dissatisfied than a fool satisfied.” Which Bentham doctrine did Mill revise?",
+    ans: "quantity", not: ["calc"], miss: "Mill is ranking pleasures by kind. Which doctrine treated them as all of one kind?",
+    body: `<p>Bentham had written that “prejudice apart, the game of push-pin is of equal value with the arts and sciences of music and poetry.” In <em>Utilitarianism</em> (in <em>Fraser's Magazine</em> in 1861, as a book in 1863), Mill argued that some pleasures are of higher quality than others, so the question is not only how much pleasure but what kind. The cost is that pleasures can no longer simply be added up, which Bentham's calculus needed.</p>` },
+  { era: 2, name: "William Stanley Jevons", years: "Theory of Political Economy, 1871", role: "Marginalist", tag: "ally", img: "jevons.png",
+    hook: "He built a theory of marginal utility, the principle Hunt calls “the cornerstone of neoclassical economics.”",
+    ask: "Jevons's chapter II, “Theory of Pleasure and Pain,” opens with Bentham's intensity, duration, certainty, and propinquity. Which doctrine did he build on?",
+    ans: "calc", not: ["value", "felt"], miss: "Intensity, duration, certainty, propinquity: these are four of Bentham's seven what?",
+    body: `<p>Jevons built marginal utility on Bentham's circumstances. Hunt shows how close Bentham had come already: against Smith's water and diamonds, Bentham argued that water is cheap because “if the whole quantity required is available, the surplus has no kind of value.” Value, on this view, depends not on total utility but on the additional utility of a small increase. Hunt says Bentham “came very close” to the principle (pp. 131–32).</p>` },
+  { era: 2, name: "F. Y. Edgeworth", years: "Mathematical Psychics, 1881", role: "Measurer of pleasure", tag: "ally", img: "edgeworth.jpg",
+    hook: "He imagined a “hedonimeter”: an ideal machine recording a person's pleasure moment by moment.",
+    ask: "On Edgeworth's hedonimeter, a person's total happiness is the area under the curve of pleasure over time. Which Bentham doctrine was he making literal?",
+    ans: "calc", not: ["felt", "value"], miss: "The height of the curve is one of Bentham's circumstances, and its length along the time axis is another.",
+    body: `<p>Height times length is intensity times duration: Bentham's first two circumstances drawn as a graph. Bentham hoped a science of happiness “might someday be worked out with the same numerical exactitude as the science of physics,” in Hunt's words (p. 130). Edgeworth gave that hope its most literal picture.</p>` },
+  { era: 3, name: "Lionel Robbins", years: "Economic Journal, 1938", role: "Critic of comparison", tag: "critic", mono: "LR",
+    hook: "His “Interpersonal Comparisons of Utility: A Comment” (1938) took Senior's objection to Bentham and made it a rule of method.",
+    ask: "Robbins argued that comparisons of utility between persons are value judgments, not science. Which Bentham doctrine falls?",
+    ans: "compare", not: ["dmu"], miss: "Bentham's famous passage weighs the pleasure in one man's breast against the pleasure in another's.",
+    body: `<p>Bentham asked how many times more pleasure is in the breast of the richest man than of the labourer, and answered “even twice, a liberal one.” Robbins said no science can answer that question. This is Senior's objection, that wants are “as various as the differences in individual character” (Hunt p. 145), turned into doctrine. Without comparison, the diminishing utility of money no longer yields a case for redistribution.</p>` },
+  { era: 3, name: "John Rawls", years: "A Theory of Justice, 1971", role: "Philosopher of justice", tag: "critic", mono: "JR",
+    hook: "A philosopher whose <em>A Theory of Justice</em> argued against utilitarianism.",
+    ask: "Rawls objected that utilitarianism “does not take seriously the distinction between persons.” Which Bentham doctrine is his target?",
+    ans: "greatest", not: ["compare", "dmu"], miss: "Rawls objects to a rule that adds everyone's happiness into one total and judges by the total.",
+    body: `<p>“The greatest happiness of the greatest number” adds up pleasures across people as if society were one person. Then one person's loss can be justified by others' larger gains. Rawls's phrase means that each person counts separately, so a gain to some cannot simply cancel a loss to others.</p>` },
+  { era: 3, name: "Daniel Kahneman", years: "Quarterly Journal of Economics, 1997", role: "“Back to Bentham?”", tag: "ally", mono: "DK",
+    hook: "With Peter Wakker and Rakesh Sarin he wrote “Back to Bentham? Explorations of Experienced Utility.”",
+    ask: "Kahneman and his co-authors distinguished “decision utility” from Bentham's experienced, or hedonic, utility. Which Bentham doctrine were they reviving?",
+    ans: "felt", not: ["calc", "egoism"], miss: "Experienced utility is the hedonic kind: what?",
+    body: `<p>Modern theory, Hunt notes, sometimes drops the word utility for a synonym such as “preference ordering” (p. 129). Kahneman, Wakker, and Sarin set Bentham's experienced, hedonic utility, the pleasure and pain people actually feel, apart from the utility of decisions and explored it as a subject of its own. The question mark in their title is worth noticing.</p>` },
+];
+
+let solved = Ledger.note("critics-solved") || [];
+function tally() {
+  document.getElementById("tally").textContent = solved.length === PEOPLE.length
+    ? "All ten identified. Seal earned." : `${solved.length} of ${PEOPLE.length} identified · open every card to earn the seal`;
+}
+const host = document.getElementById("people");
+let era = -1;
+PEOPLE.forEach((p, i) => {
+  if (p.era !== era) { era = p.era; host.insertAdjacentHTML("beforeend", `<div class="era"><h2>${ERAS[era][0]}</h2><span>${ERAS[era][1]}</span></div>`); }
+  const card = document.createElement("article");
+  card.className = "card person";
+  card.innerHTML = `<figure class="portrait-frame">${p.img ? `<img src="images/${p.img}" alt="Portrait of ${p.name}" loading="lazy">` : `<div class="monogram">${p.mono}</div>`}</figure>
+    <div><span class="tag ${p.tag}">${{ ally: "Ally", critic: "Critic", mixed: "Ally and critic" }[p.tag]}</span>
+      <h3>${p.name}</h3><p class="role">${p.role} <span class="years">· ${p.years}</span></p>
+      <p class="hook">${p.hook}</p><div class="slot"></div><div class="body hidden">${p.body}</div></div>`;
+  host.append(card);
+  const body = card.querySelector(".body");
+  if (solved.includes(i)) { body.classList.remove("hidden"); card.querySelector(".slot").innerHTML = `<p class="muted" style="font-size:.9rem">✓ Doctrine: ${D[p.ans]}</p>`; return; }
+  const others = Learn.shuffle(Object.keys(D).filter(k => k !== p.ans && !p.not.includes(k))).slice(0, 3);
+  Learn.mcq(card.querySelector(".slot"), {
+    label: "Name the doctrine", q: p.ask,
+    choices: [{ t: D[p.ans], ok: true, fb: "" }, ...others.map(k => ({ t: D[k], fb: p.miss }))],
+    onSolve: () => {
+      Learn.open(body);
+      if (!solved.includes(i)) solved.push(i);
+      Ledger.note("critics-solved", solved); tally();
+      if (solved.length === PEOPLE.length) Ledger.complete("critics");
+    } });
+});
+tally();
+</script>
+</body>
+</html>

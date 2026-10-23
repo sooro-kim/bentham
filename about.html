@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About Bentham</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .about-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 56px; align-items: start; }
+    .facts { position: sticky; top: 96px; }
+    .facts dl { margin: 16px 0 0; }
+    .facts dt { font-family: var(--f-display); font-weight: 700; color: var(--accent); font-size: .95rem; letter-spacing: .06em; text-transform: uppercase; }
+    .facts dd { margin: 0 0 12px; font-size: .97rem; }
+    @media (max-width: 900px) { .about-layout { grid-template-columns: 1fr; } .facts { position: static; } }
+    .chapter { margin-bottom: 30px; }
+    .chapter h2 { font-size: 1.9rem; display: flex; gap: 12px; align-items: baseline; }
+    .chapter h2 .n { font: 400 2.2rem var(--f-script); color: var(--accent); }
+    .chapter .years { color: var(--ink-soft); font-size: .95rem; margin: -8px 0 10px; }
+    .chapter figure { margin: 6px 0 16px; }
+    .chapter figure img { width: 100%; max-height: 300px; object-fit: cover; object-position: center 15%; border-radius: 4px; border: 1px solid var(--rule); filter: sepia(.15); }
+    .chapter figure img.contain { max-height: 420px; object-fit: contain; background: var(--paper-2); }
+    .closed { border: 1px dashed var(--rule); border-radius: var(--radius); padding: 18px; color: var(--ink-soft); }
+  </style>
+</head>
+<body data-step="about">
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">About</p>
+    <h1>Jeremy Bentham</h1>
+    <p class="lede">A lawyer who never practised and wrote for more than sixty years. Hunt calls his utilitarian philosophy the base on which neoclassical economics was later built. His life comes in five short chapters. Each one ends with a question, and the next chapter opens when you answer it.</p>
+  </header>
+
+  <div class="about-layout">
+    <article class="prose" id="chapters"></article>
+    <aside class="card facts">
+      <figure class="portrait-frame"><img src="images/bentham.jpg" alt="Portrait of Jeremy Bentham by Henry William Pickersgill" loading="lazy"></figure>
+      <dl>
+        <dt>Born</dt><dd>15 February 1748, Houndsditch, London</dd>
+        <dt>Died</dt><dd>6 June 1832, Queen Square Place, Westminster, aged 84</dd>
+        <dt>Training</dt><dd>Westminster School; The Queen's College, Oxford (BA 1763, MA 1766); called to the bar 1769, but never practised</dd>
+        <dt>Major works</dt><dd><em>A Fragment on Government</em> (1776)<br><em>An Introduction to the Principles of Morals and Legislation</em> (printed 1780; published 1789)<br><em>Defence of Usury</em> (1787)<br><em>Panopticon; or, The Inspection House</em> (1791)<br><em>Plan of Parliamentary Reform</em> (printed 1817)</dd>
+        <dt>Coined</dt><dd>The word “utilitarian” (1781)</dd>
+        <dt>Argued with</dt><dd>Blackstone, on the laws of England; Adam Smith, on the legal maximum rate of interest</dd>
+      </dl>
+    </aside>
+  </div>
+  <p class="cite" style="margin-top:28px">Based on Hunt &amp; Lautzenheiser, <em>History of Economic Thought</em>, 3rd ed., ch. 6, pp. 125–134. Biographical details not in Hunt (family, schooling, Blackstone, Russia, the Panopticon, James Mill, reform, the Auto-icon) follow the <em>Stanford Encyclopedia of Philosophy</em> entry “Jeremy Bentham” and Wikipedia, checked 22 October 2026. See <a href="sources.html">Sources</a>.</p>
+</main>
+<script src="js/site.js"></script>
+<script src="js/learn.js"></script>
+<script>
+const CH = [
+  { title: "The prodigy who would not practise", years: "1748–1769", img: ["blackstone.jpg", "Sir William Blackstone, whose lectures Bentham heard at Oxford (portrait, 1755)"],
+    text: `<p class="dropcap">Jeremy Bentham was born on 15 February 1748 in Houndsditch, London. His father, Jeremiah Bentham, was an attorney. Jeremy went to Westminster School from 1755 to 1760 and entered The Queen's College, Oxford, in 1760, at the age of twelve. He took his BA in 1763 and his MA in 1766.</p>
+      <p>In 1763–64 he went back to Oxford to hear the lectures of William Blackstone, whose <em>Commentaries on the Laws of England</em> came out in 1765–69. He was called to the bar in 1769. His legal career lasted one brief. He never practised. In the same year, 1769, he found in the writings of Hume, Helvétius, and Beccaria the idea he would build on for the rest of his life: the principle of utility.</p>` },
+  { title: "The principle of utility", years: "1769–1785",
+    ask: { q: "Bentham had trained in the law of England as it stood, heard its most famous teacher, and refused to practise it. Then he found a single test that any law could be held to. What kind of writer would you expect him to become?",
+      choices: [
+        { ok: true, t: "A critic of the law as it stood, asking what it ought to be.", fb: "His first book was an attack on Blackstone. From then on he held laws and institutions to one standard: what they did to the pleasures and pains of the people they touched." },
+        { t: "A commentator who explained the law as it stood, clause by clause.", fb: "That describes the <em>Commentaries</em> he had heard Blackstone lecture on. Bentham's first book was an attack on Blackstone, judged by the new test." },
+        { t: "A barrister who argued cases and wrote on them on the side.", fb: "His legal career lasted one brief. He never practised." } ] },
+    text: `<p>In 1776, the year of the <em>Wealth of Nations</em> and the American Declaration of Independence, Bentham published <em>A Fragment on Government</em> anonymously. It attacked Blackstone. Its preface held the axiom “it is the greatest happiness of the greatest number that is the measure of right and wrong.”</p>
+      <p>His <em>Introduction to the Principles of Morals and Legislation</em> was printed in 1780 and published, with additions, in 1789. It was meant as part of a general preface to a complete code of law, and it opens: “Nature has placed mankind under the governance of two sovereign masters, pain and pleasure.” It is not a book about economics. Yet Hunt says it was his work with “the most powerful influence on nineteenth-century economic theory,” because its utilitarian philosophy became the philosophical basis of neoclassical economics. In 1781, by the account of the <em>Stanford Encyclopedia</em>, he coined the word “utilitarian” “in a dream.”</p>` },
+  { title: "Russia, usury, and the Panopticon", years: "1786–1803", img: ["panopticon.jpg", "Willey Reveley's plan of the Panopticon, or “Houses of Inspection” (c. 1791)", "contain"],
+    ask: { q: "Pleasure and pain, says the <em>Introduction</em>, “point out what we ought to do.” Suppose a lender and a borrower both expect to gain from a loan at 10 per cent, and the law caps interest at 5. Reasoning from the principle of utility, how did Bentham judge the cap?",
+      choices: [
+        { ok: true, t: "Against it: it forbids a bargain both sides expect to gain from.", fb: "That is the spirit of the <em>Defence of Usury</em> (1787), which argued against legal ceilings on interest. A law is judged only by the pleasures and pains it produces." },
+        { t: "For it: lending at high interest is wrong, whatever its effects.", fb: "“Wrong whatever its effects” is exactly the kind of reasoning Bentham rejected. For him nothing is right or wrong except by its effects on pleasure and pain." },
+        { t: "For it: the cap spares needy borrowers the pain of heavy debt.", fb: "That is the right kind of argument, about pains. But Bentham's conclusion went the other way: the borrower chose the bargain, and the <em>Defence of Usury</em> argued against legal ceilings on interest." } ] },
+    text: `<p>Hunt dates Bentham's turn to “the immediate issues of economic theory” to about six years after the <em>Introduction</em>. In 1786–87 he visited his brother Samuel in Krichev, in White Russia, where Samuel managed projects for Prince Potemkin. There Bentham wrote <em>Defence of Usury</em> (1787), against legal ceilings on interest. It addressed Adam Smith, who had supported a legal maximum rate.</p>
+      <p>Also from Russia, in letters to his father, came the plan he would chase for the next twenty-five years: the Panopticon, an “inspection house,” a circular building in which one unseen inspector can watch every cell. He published it in 1791. In September 1792 France made him an honorary citizen. The Penitentiary Act of 1794 gave the plan government support, and he received £2,000 for preliminary work. In November 1799 he bought a site at Millbank for £12,000. In 1803 the Addington administration abandoned the project.</p>
+      <p>In these years his economics was Smith's. Hunt calls him “an ardent spokesman for a laissez-faire policy”: the free market allocates resources in the most socially beneficial way, and “no regulations nor any efforts whatsoever, either on the part of subjects or governors, can raise the quantity of wealth produced during a given period.”</p>` },
+  { title: "From reformer to radical democrat", years: "1801–1826", img: ["millbank.jpg", "Millbank Penitentiary, built on the site Bentham had bought for his Panopticon (engraving by Thomas Hosmer Shepherd, pub. 1829)"],
+    ask: { q: "In his early writings Bentham held that “no regulations nor any efforts whatsoever … can raise the quantity of wealth produced.” Whose argument was he accepting?",
+      choices: [
+        { ok: true, t: "Adam Smith's: competition sends resources where they are most productive.", fb: "Hunt (p. 132) says the early Bentham accepted exactly this, so government interference could at best leave production where it was." },
+        { t: "Malthus's: in a free market, saving may fail to find new investment.", fb: "That is Malthus's doubt, and later Bentham's own (Hunt pp. 132–33). It points toward the hand of government, not away from it." },
+        { t: "Say's: products buy products, so supply always finds its demand.", fb: "The early Bentham did believe supply always equals demand (Hunt p. 132). But this sentence is about how production is allocated, which Hunt ties to Smith; and Say's <em>Treatise</em> appeared only in 1803." } ] },
+    text: `<p>Then Bentham changed his mind. By 1801, Hunt shows, he could write: “I have not . . . any horror, sentimental or anarchical, of the hand of government.” Hunt gives two reasons. Money saved might be “put into a chest and kept there” instead of being put into circulation, so that prices, production, and profits fall. And because each extra pound brings a person less enjoyment, moving money from the rich to the poor would raise the total of happiness. The Panopticon was finished too: in 1812 he settled for £23,000 in compensation, against an initial claim of nearly £700,000, and Millbank Penitentiary was built on his site.</p>
+      <p>In late 1808 he met James Mill, and in 1809–10 he drafted plans for parliamentary reform. His <em>Plan of Parliamentary Reform</em> (printed 1817, published 1818) asked for votes for all literate men, equal electoral districts, annual elections, and the secret ballot, which he thought the most important of all. Soon after, he committed himself to republicanism. From 1822 he drafted a <em>Constitutional Code</em>. In December 1823 he funded the start of the <em>Westminster Review</em>, which he founded with James Mill, and in 1826 the reformers he worked with formed the nucleus of University College London. He is called its “spiritual founder,” though his direct part in the founding was limited.</p>` },
+  { title: "The eve of reform, and the Auto-icon", years: "1832 and after", img: ["autoicon.jpg", "The Auto-icon: Bentham's skeleton, dressed in his clothes, with a wax head, at University College London (photo 2021)"],
+    ask: { q: "The reforming Bentham wanted the government to redistribute from rich to poor. For that to work, what must be true of the people who run the government?",
+      choices: [
+        { ok: true, t: "They must be impartial, with no interests of their own.", fb: "Hunt's words: government “had to be a benevolent, impartial institution, equally interested in every individual's welfare.” And here he finds the weak point (p. 134): by Bentham's own account of human nature, legislators are egoists too. Notice that his <em>Plan of Parliamentary Reform</em> was aimed at who chooses the legislators, and how." },
+        { t: "They must be elected by men who can read and write.", fb: "Bentham did later put his hope in who elects them. But election does not by itself make anyone impartial, and impartiality is what Hunt says redistribution requires (p. 134)." },
+        { t: "They must be rich enough that no bribe could tempt them.", fb: "A rich legislator still has interests: those of the rich. On Bentham's theory, self-preference “has place everywhere,” in Parliament too." },
+        { t: "They must know the seven circumstances well enough to calculate.", fb: "Knowing what maximizes society's happiness is not the same as wanting it. Bentham's legislators are human, and every human, he wrote, prefers himself." } ] },
+    text: `<p>Bentham died on 6 June 1832, aged 84, at Queen Square Place, Westminster, on the eve of the royal assent to the Great Reform Act on 7 June. Only the first of the three volumes of his <em>Constitutional Code</em> had appeared in his lifetime, in 1830. His will, dated 30 May 1832, directed that his body be dissected and preserved. The skeleton, dressed in his clothes and seated in a chair with a wax head, is the “Auto-icon,” now displayed at the entrance of the UCL Student Centre. The real head was later locked away.</p>
+      <p>His ideas went two ways. Hunt sees in Bentham's life a split between the laissez-faire writer of the eighteenth century and the reformer of the nineteenth, and says the same split “was to be reflected later in the neoclassical tradition, which was constructed on the foundation of Bentham's utilitarian philosophy.” Twentieth-century neoclassical economists, Hunt adds, went “to some lengths … to disguise the utilitarian basis of their theories.” The rest of this site shows what they kept and what they hid.</p>`,
+    closing: { q: "Hunt says Bentham's split “was to be reflected later in the neoclassical tradition.” What are its two sides?",
+      choices: [
+        { ok: true, t: "Trust in the free market, and reform by the hand of government.", fb: "The same principle of utility supports both. The <a href=\"critics.html\">Critics &amp; Legacy</a> page follows the two lines forward." },
+        { t: "A labour theory of value early on, and a utility theory later.", fb: "Bentham was on the utility side throughout: “All value is founded on utility.” The labour theory belongs to Smith and Ricardo, whom Hunt contrasts with him." },
+        { t: "Measurable pleasure early on, and unmeasurable preference later.", fb: "Hunt does say later economists sometimes dropped “utility” for “preference ordering” (p. 129), but that is not the split in Bentham's own life. His split is about the role of government in the economy." } ] } },
+];
+
+let opened = Ledger.note("about-open") || 1;   // how many chapters are open
+const host = document.getElementById("chapters");
+function chapterHTML(c, i) {
+  return `<section class="chapter reveal" id="ch${i + 1}"><h2><span class="n">${i + 1}</span>${c.title}</h2><div class="years">${c.years}</div>
+    ${c.img ? `<figure><img src="images/${c.img[0]}"${c.img[2] ? ` class="${c.img[2]}"` : ""} alt="${c.img[1]}" loading="lazy"><figcaption>${c.img[1]}</figcaption></figure>` : ""}${c.text}</section>`;
+}
+function render() {
+  host.innerHTML = CH.slice(0, opened).map(chapterHTML).join("");
+  const next = CH[opened];
+  const gate = document.createElement("div");
+  host.append(gate);
+  if (next) {
+    Learn.mcq(gate, Object.assign({ label: `To open chapter ${opened + 1}`, onSolve: () => {
+      opened++; Ledger.note("about-open", opened);
+      const cont = document.createElement("div");
+      cont.innerHTML = `<button class="btn primary" style="margin-bottom:24px">Read chapter ${opened}: ${CH[opened - 1].title}</button>`;
+      gate.after(cont);
+      cont.querySelector("button").onclick = () => { render(); document.getElementById("ch" + opened).scrollIntoView({ behavior: "smooth", block: "start" }); };
+    } }, next.ask));
+    host.insertAdjacentHTML("beforeend", CH.slice(opened + 1).map((c, k) => `<div class="closed" style="margin-top:14px">Chapter ${opened + 2 + k} is closed.</div>`).join(""));
+  } else if (!Ledger.isDone("about")) {
+    Learn.mcq(gate, Object.assign({ label: "Last question: earn the seal", onSolve: () => Ledger.complete("about") }, CH[CH.length - 1].closing));
+  } else {
+    gate.innerHTML = `<p class="muted">✓ Seal earned. Next: the <a href="ideas.html">Key Ideas</a>.</p>`;
+  }
+}
+render();
+</script>
+</body>
+</html>

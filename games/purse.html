@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Labourer and the Richest Man</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .game { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+    @media (max-width: 960px) { .game { grid-template-columns: minmax(0, 1fr); } }
+    .roundbar { display: flex; gap: 6px; margin-bottom: 14px; }
+    .roundbar span { flex: 1; height: 6px; border-radius: 3px; background: var(--rule); }
+    .roundbar span.done { background: var(--right); }
+    .roundbar span.now { background: var(--accent); }
+    .role { font: 700 .78rem var(--f-body); letter-spacing: .12em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; display: inline-block; margin-bottom: 8px; background: rgba(220,177,95,.16); color: var(--accent); }
+    .params { font-size: .88rem; color: var(--ink-soft); background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px; margin: 10px 0 0; }
+    .params b { color: var(--ink); font-weight: 600; }
+    .people { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .people > div { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; }
+    .people .who { font: 700 .8rem var(--f-body); letter-spacing: .1em; text-transform: uppercase; }
+    .people .row { display: flex; justify-content: space-between; gap: 8px; font-size: .9rem; color: var(--ink-soft); margin-top: 4px; }
+    .people .row b { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .people .meter { margin-top: 6px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .stats .stat { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; font-size: 1.35rem; }
+    @media (max-width: 480px) { .people { grid-template-columns: 1fr; } .stats .stat { font-size: 1.1rem; } }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .85rem; color: var(--ink-soft); margin: 0 0 4px; }
+    .lesson { margin-top: 12px; padding: 12px 16px; background: var(--paper-2); border-left: 3px solid var(--accent); border-radius: 6px; }
+    .lesson.bad { border-left-color: var(--wrong); }
+    .lesson.good { border-left-color: var(--right); }
+    .score { font: 700 1.05rem var(--f-display); color: var(--ink-soft); margin: 0; }
+    .score b { color: var(--accent); font-size: 1.4rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .pickR { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+    .pickR button { text-align: left; font: 1rem/1.4 var(--f-body); padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; }
+    .pickR button:hover:not(:disabled) { border-color: var(--accent); }
+    .pickR button.on { border-color: var(--accent); background: rgba(220,177,95,.14); }
+    .pickR button:disabled { cursor: default; }
+    @media (max-width: 480px) { .pickR { grid-template-columns: 1fr; } }
+    .tool { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; margin: 12px 0; }
+    .slider { grid-template-columns: 11em 1fr 3.6em; }
+    @media (max-width: 520px) { .slider { grid-template-columns: 1fr 3.6em; } }
+    .q { font-size: .97rem; }
+  </style>
+</head>
+<body data-root="../" data-step="g-purse">
+<main class="wrap">
+  <header class="page-head" style="padding-bottom:16px">
+    <p class="eyebrow"><a href="../play.html" style="text-decoration:none">Play and Learn</a> · Game 2</p>
+    <h1>The Labourer and the Richest Man</h1>
+    <p class="lede">Bentham asked how much more pleasure a man with 50,000 times the labourer's income really has. His answer makes a case for taking from the rich and giving to the poor. Then he set a limit on it. You will run his argument, find his limit, and then watch two critics take it apart.</p>
+  </header>
+
+  <div class="game">
+    <div>
+      <div class="card">
+        <div class="legend" id="legend"></div>
+        <div id="chart"></div>
+        <div class="people">
+          <div><span class="who k-poor">Each labourer (10 of them)</span>
+            <div class="row"><span>Income</span><b id="yP">—</b></div>
+            <div class="row"><span>Utility, our model</span><b id="uP">—</b></div>
+            <div class="meter"><i id="mP" style="width:0;background:var(--poor)"></i></div></div>
+          <div><span class="who k-rich">The richest man</span>
+            <div class="row"><span>Income</span><b id="yR">—</b></div>
+            <div class="row"><span>Utility, our model</span><b id="uR">—</b></div>
+            <div class="meter"><i id="mR" style="width:0;background:var(--rich)"></i></div></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span id="sW">—</span><small>total utility</small></div>
+          <div class="stat"><span id="sO">—</span><small>total income</small></div>
+          <div class="stat"><span id="sRatio">—</span><small>rich ÷ labourer</small></div>
+        </div>
+        <p class="params" id="params"></p>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap">
+        <div class="roundbar" id="roundbar" style="flex:1;min-width:160px;margin:0"></div>
+        <p class="score">Points <b id="score">0</b> <span id="best" style="font-size:.9rem"></span></p>
+      </div>
+      <div id="stage" style="margin-top:14px"></div>
+    </div>
+  </div>
+</main>
+<script src="../js/site.js"></script>
+<script src="../js/learn.js"></script>
+<script src="../js/econ.js"></script>
+<script>
+(function () {
+if (document.body.dataset.locked) return;
+const $ = id => document.getElementById(id);
+const F = Econ.fmt;
+const money = v => "£" + F(Math.round(v));
+
+// ---------- the society (our numbers; only R is Bentham's) ----------
+const N_POOR = 10, Y_POOR = 20, Y_RICH = 1000000, K_LIMIT = 1;   // 1,000,000 / 20 = 50,000, as in Bentham's passage
+const STAGES = ["Bentham's guess", "Equal shares", "The limit", "Senior's lens", "Who holds the purse?", "Your first guess"];
+let stage = 0, R = null, th = null, t = 0, k = 0, score = 0, senior = false, showBest = null, chartOn = false;
+const soc = (kk = k) => ({ nPoor: N_POOR, yPoor: Y_POOR, nRich: 1, yRich: Y_RICH, th, k: kk });
+
+function bar() {
+  $("roundbar").innerHTML = STAGES.map((s, i) => `<span title="${s}" class="${i < stage ? "done" : i === stage ? "now" : ""}"></span>`).join("");
+  $("score").textContent = score;
+}
+function add(p) { score += p; $("score").textContent = score; }
+
+// ---------- left panel ----------
+function curve(o, f = s => s.welfare) { const p = []; for (let i = 0; i <= 100; i++) p.push([i / 100, f(Econ.society(o, i / 100))]); return p; }
+function draw() {
+  const pct = v => Math.round(v * 100) + "%";
+  if (th === null) {
+    $("chart").innerHTML = `<p class="muted" style="margin:40px 0;text-align:center">Choose Bentham's ratio to begin.</p>`;
+    $("legend").innerHTML = ""; $("params").innerHTML = paramsTxt(); return;
+  }
+  const o = soc(), s = Econ.society(o, t), u0 = Econ.u(Y_RICH, th);
+  if (!chartOn) {
+    $("legend").innerHTML = "";
+    $("chart").innerHTML = `<p class="muted" style="margin:40px 0;text-align:center">The chart of total utility appears once you have made your prediction.</p>`;
+  } else if (senior) {
+    $("legend").innerHTML = `<span style="color:var(--money)">━ total income (observable)</span><span>total utility: ?</span>`;
+    $("chart").innerHTML = Econ.lineSVG([{ points: curve(o, s => s.output / 1000), color: "#d9cfbd" }],
+      { xticksAt: [0, .25, .5, .75, 1], xfmt: pct, xlabel: "share t of the rich man's income moved to the labourers", ylabel: "total income, £ thousands",
+        yfmt: v => F(v), dots: [{ x: t, y: s.output / 1000, color: "#d9cfbd" }], label: "Total income against the share moved" });
+  } else {
+    // The curve is very flat near its top (θ is small), so the y-axis is zoomed onto the top of the curve:
+    // from 94% of the peak upward. Points below the window are left out, not drawn at the floor.
+    const all = [curve(o)]; if (k > 0) all.push(curve(soc(0)));
+    const peak = Econ.bestShare(o).welfare, top = Math.max(...all.flat().map(p => p[1]));
+    const y0 = peak * 0.94, y1 = top + (top - y0) * 0.08, keep = pts => pts.filter(p => p[1] >= y0);
+    const series = [];
+    if (k > 0) series.push({ points: keep(all[1]), color: "#b2c2b9", dash: "5 5", width: 1.5 });
+    series.push({ points: keep(all[0]), color: "#7fd6b6" });
+    const dot = s.welfare >= y0 ? [{ x: t, y: s.welfare, color: "#7fd6b6" }] : [];
+    $("legend").innerHTML = `<span class="k-pleasure">━ total utility${k > 0 ? " with the limit" : ""}</span>${k > 0 ? `<span>┅ without the limit</span>` : ""}<span>axis starts at 94% of the peak; the dot is where you are (hidden when below the axis)</span>`;
+    $("chart").innerHTML = Econ.lineSVG(series, { xticksAt: [0, .25, .5, .75, 1], xfmt: pct,
+      xlabel: "share t of the rich man's income moved to the labourers", ylabel: "total utility (axis zoomed)", yfmt: v => F(v, 1),
+      xmin: 0, xmax: 1, ymin: y0, ymax: y1,
+      vlines: showBest !== null ? [{ x: showBest, label: "best", color: "#dcb15f" }] : [],
+      dots: dot, label: "Total utility against the share moved" });
+  }
+  $("yP").textContent = money(s.yP); $("yR").textContent = money(s.yR);
+  $("uP").textContent = senior ? "?" : F(s.uP, 3); $("uR").textContent = senior ? "?" : F(s.uR, 3);
+  $("mP").style.width = senior ? "0" : (100 * s.uP / u0) + "%"; $("mR").style.width = senior ? "0" : (100 * s.uR / u0) + "%";
+  $("sW").textContent = senior ? "?" : F(s.welfare, 3);
+  $("sO").textContent = money(s.output);
+  $("sRatio").textContent = s.yP > 0 ? F(s.ratio, s.ratio < 10 ? 2 : 0) + "×" : "—";
+  $("params").innerHTML = paramsTxt();
+}
+function paramsTxt() {
+  return `<b>Our model.</b> ${N_POOR} labourers with £${Y_POOR} each; one rich man with £${F(Y_RICH)} (50,000 times as much, as in Bentham's passage). Utility u(y) = y<sup>θ</sup>. ` +
+    (th === null ? "" : `<b>R = ${R}</b> (Bentham's), so <b>θ = ln ${R} / ln 50,000 = ${F(th, 4)}</b>. `) +
+    `A share <b>t</b> of the rich man's income is split equally among the labourers. ` +
+    (k > 0 ? `<b>Inducement to labour: k = ${k}</b>, so every income is scaled by (1 − k·t²) = ${F(1 - k * t * t, 2)}. ` : `No loss of output (k = 0). `) +
+    `Only R comes from Bentham; the rest are our numbers.`;
+}
+
+// a slider tool shared by stages b, c, d
+function slider(host, onMove) {
+  host.innerHTML = `<div class="tool"><div class="slider"><label for="t">Share t moved</label><input id="t" type="range" min="0" max="1" step="0.01" value="${t}"><output id="to">${Math.round(t * 100)}%</output></div></div>`;
+  $("t").oninput = () => { t = +$("t").value; $("to").textContent = Math.round(t * 100) + "%"; draw(); onMove && onMove(); };
+}
+
+// ---------- stage a: Bentham's guess ----------
+function stageA() {
+  stage = 0; chartOn = false; bar(); draw();
+  $("stage").innerHTML = `<span class="role">You are Bentham</span><h2 style="font-size:1.7rem">1. Bentham's guess</h2>
+    <blockquote class="q">Take, for example, on the one hand, a labouring man, who, for the whole of his life, has a bare but sure subsistence . . . . Take, on the other hand, the richest man in the country . . . . [Suppose the richest man receives an income] 50,000 times as great as that received, in the same time, by the labourer. This supposed, the quantity of pleasure in the breast of the . . . [rich man] will naturally be greater than the quantity in the breast of the labourer: Be it so. But by how much—by how many times greater? Fifty thousand times? This is assuredly more than any man would take it upon himself to say. A thousand times then?—a hundred?—ten times?—five times? . . . Five times the labourer's seems a very large, not to say excessive allowance: even twice, a liberal one.</blockquote>
+    <p class="cite">Bentham, quoted in Hunt &amp; Lautzenheiser, p. 133.</p>
+    <p>Call Bentham's answer <strong>R</strong>: how many times the labourer's pleasure the rich man has. Pick one of Bentham's two figures. Our model then fixes how fast pleasure grows with money: if u(y) = y<sup>θ</sup> and 50,000<sup>θ</sup> = R, then θ = ln R / ln 50,000.</p>
+    <div class="pickR"><button data-r="2"><strong>R = 2</strong><br><span class="muted">“even twice, a liberal one”</span></button>
+      <button data-r="5"><strong>R = 5</strong><br><span class="muted">“a very large, not to say excessive allowance”</span></button></div>
+    <div id="a1"></div><div id="a2"></div><div id="aafter"></div>`;
+  $("stage").querySelectorAll("[data-r]").forEach(b => b.onclick = () => {
+    R = +b.dataset.r; th = Econ.theta(R);
+    $("stage").querySelectorAll("[data-r]").forEach(x => { x.disabled = true; x.classList.toggle("on", x === b); });
+    draw();
+    const uP = Econ.u(Y_POOR, th), uR = Econ.u(Y_RICH, th);
+    $("a1").innerHTML = `<div class="lesson">With R = ${R}, θ = ${F(th, 4)}. In our model the labourer's utility is ${Y_POOR}<sup>θ</sup> = ${F(uP, 3)} and the rich man's is ${F(Y_RICH)}<sup>θ</sup> = ${F(uR, 3)}: exactly ${R} times as much, from 50,000 times the money. Look at the two utility bars in the panel.</div>`;
+    const ans = Econ.mu(Y_POOR, th) / Econ.mu(Y_RICH, th);
+    Learn.num($("a2"), {
+      label: "Work it out",
+      q: `The rich man gets ${R} times the pleasure from 50,000 times the money, so each of his pounds brings him far less than each of the labourer's. How many times more is <strong>one more pound</strong> worth to the labourer than to the rich man? <span class="muted">(In our model a last pound is worth θ × utility ÷ income, so the ratio of last pounds equals the ratio of pleasure per pound.)</span>`,
+      answer: ans, tol: ans * 0.005, unit: "times",
+      misses: [{ when: v => Math.abs(v - 50000) < 1, fb: `50,000 is the ratio of incomes. That would be right only if the rich man had the same pleasure as the labourer. He has ${R} times as much.` },
+               { when: v => Math.abs(v - R) < 1e-9, fb: `${R} is the ratio of total pleasure, which runs the other way: the rich man has more. Per pound, divide by how many more pounds he has.` },
+               { when: v => Math.abs(v - 50000 * R) < 1, fb: `You multiplied. The rich man's extra pleasure makes each of his pounds worth a little more, not less: divide 50,000 by ${R}.` }],
+      hint: "Pleasure per pound for the labourer: u(20)/20. For the rich man: u(1,000,000)/1,000,000. Take the ratio: 50,000 ÷ R.",
+      onSolve: first => {
+        add(first ? 3 : 1);
+        $("aafter").innerHTML = `<div class="lesson good">50,000 ÷ ${R} = <strong>${F(ans)}</strong>. A pound taken from the richest man costs him about 1/${F(ans)} of what it gives a labourer. That is the diminishing marginal utility of money, and it is all Bentham needs to argue for redistribution: “all other things being equal,” Hunt writes, moving money from rich to poor raises society's total utility (p. 133).</div>
+          <div class="actions"><button class="btn primary" id="next">Next: move the money</button></div>`;
+        $("next").onclick = stageB;
+      },
+    });
+  });
+}
+
+// ---------- stage b: equal shares (k = 0) ----------
+function stageB() {
+  stage = 1; k = 0; t = 0; showBest = null; chartOn = false; bar(); draw();
+  const best = Econ.bestShare(soc());
+  $("stage").innerHTML = `<span class="role">You are Bentham's legislator</span><h2 style="font-size:1.7rem">2. Equal shares</h2>
+    <p>You can move a share <strong>t</strong> of the rich man's income to the ten labourers, split equally. For now, assume moving it costs nothing: no one works less (k = 0). Total utility = 10 × u(labourer) + u(rich man).</p>
+    <div id="b1"></div><div id="bslide"></div><div id="b2"></div><div id="bafter"></div>`;
+  Learn.mcq($("b1"), {
+    label: "Predict", q: "Before you touch the slider: where will total utility be highest?",
+    choices: [
+      { t: "Where all eleven have the same income", ok: true, fb: "As long as the rich man has more than a labourer, his last pound is worth less than theirs, so moving it raises the total. That stops being true only when incomes are equal." },
+      { t: "At t = 100%: give the labourers everything", fb: "Long before t = 100% the labourers have more than he does. From then on, his last pound is worth more than theirs, and moving it lowers the total." },
+      { t: "At t = 50%: split the difference", fb: "At t = 50% he still has £500,000 and each labourer about £50,000. His last pound is still worth less than theirs, so keep moving." },
+      { t: "At t = 0: his loss always outweighs their gain", fb: `The opposite. In stage 1 you found a labourer's last pound is worth ${F(50000 / R)} times his.` },
+    ],
+    onSolve: first => {
+      if (first) add(2);
+      chartOn = true; draw();
+      slider($("bslide"));
+      $("bslide").insertAdjacentHTML("beforeend", `<p class="q">Now find the peak with the slider and lock it in.</p><button class="btn primary" id="lock">Lock in t</button><div id="bfb"></div>`);
+      let tries = 0;
+      $("lock").onclick = () => {
+        tries++;
+        const s = Econ.society(soc(), t);
+        if (Math.abs(t - best.t) <= 0.02 + 1e-9) {
+          $("lock").disabled = true; $("t").disabled = true; showBest = best.t; draw();
+          add(tries === 1 ? 3 : 1);
+          $("bfb").innerHTML = `<div class="lesson good">Peak at t ≈ ${Math.round(best.t * 1000) / 10}%: each labourer has ${money(best.yP)}, the rich man ${money(best.yR)}. Equal, to within rounding.</div>`;
+          askIncome();
+        } else {
+          $("bfb").innerHTML = `<div class="lesson bad">Not the peak. At ${Math.round(t * 100)}% each labourer has ${money(s.yP)} and the rich man ${money(s.yR)}. ${s.yP < s.yR ? "He still has more, so his last pound is worth less than theirs: move more." : "Now he has less than a labourer, so his last pound is worth more than theirs: you have moved too much."}</div>`;
+        }
+      };
+    },
+  });
+  function askIncome() {
+    const each = (N_POOR * Y_POOR + Y_RICH) / (N_POOR + 1);
+    Learn.num($("b2"), {
+      label: "Check the arithmetic", q: "With no loss of output, what income does each of the eleven have at the peak?",
+      answer: each, tol: 100, unit: "£",
+      misses: [{ when: v => Math.abs(v - (Y_RICH / N_POOR + Y_POOR)) < 100, fb: "You gave the labourers the whole income. The rich man is one of the eleven persons too." },
+               { when: v => Math.abs(v - (N_POOR * Y_POOR + Y_RICH) / N_POOR) < 100, fb: "You divided by 10. There are eleven persons." }],
+      hint: "Total income is 10 × £20 + £1,000,000. Divide equally among eleven.",
+      onSolve: first => {
+        add(first ? 3 : 1);
+        $("bafter").innerHTML = `<div class="lesson">£1,000,200 ÷ 11 ≈ <strong>${money(each)}</strong>. With pleasure counted the same in every breast and no cost to moving money, the greatest happiness is <strong>full equality</strong>. Bentham did not stop there.</div>
+          <div class="actions"><button class="btn primary" id="next">Next: Bentham's limit</button></div>`;
+        $("next").onclick = stageC;
+      },
+    });
+  }
+}
+
+// ---------- stage c: the limit (k > 0) ----------
+function stageC() {
+  stage = 2; k = K_LIMIT; t = 0; showBest = null; chartOn = false; bar(); draw();
+  const best = Econ.bestShare(soc());
+  $("stage").innerHTML = `<span class="role">You are Bentham's legislator</span><h2 style="font-size:1.7rem">3. The limit</h2>
+    <p>Bentham was “by no means an advocate of complete equality,” Hunt writes (p. 133). Past some point, taking more would do more harm than good, above all by weakening the <strong>inducement to labour</strong>.</p>
+    <p>Our model of that harm: every income is scaled by (1 − k·t²), with <strong>k = ${K_LIMIT}</strong>. Moving 10% costs 1% of everyone's income; moving 50% costs 25%. The number k is ours, not Bentham's.</p>
+    <div id="c1"></div><div id="cslide"></div><div id="c2"></div><div id="cafter"></div>`;
+  Learn.mcq($("c1"), {
+    label: "Predict", q: "With this cost switched on, where will the best t be?",
+    choices: [
+      { t: "Lower than before, but well above zero", ok: true, fb: "The cost k·t² is tiny for the first pounds moved and grows fast after. The first pounds are still worth thousands of times more to the labourers. So redistribution still pays at first, then stops paying before equality." },
+      { t: "Still at full equality, t ≈ 91%, as before", fb: "Equality now costs a great deal: at t ≈ 91% every income shrinks by about 83%. The extra pleasure of the last pounds moved is not worth that." },
+      { t: "At zero: any loss of output rules redistribution out", fb: `At t = 1% the output loss is 0.01% of incomes, while each pound moved is worth ${F(50000 / R)} times as much to a labourer. A tiny cost cannot outweigh that.` },
+      { t: "Higher than before, to make up for the lost output", fb: "Moving more money makes the lost output worse, not better: the cost k·t² grows with t. The cost only ever lowers the gain from moving money, and the last pounds moved suffer most, so the best t cannot rise." },
+    ],
+    onSolve: first => {
+      if (first) add(2);
+      chartOn = true; draw();
+      slider($("cslide"));
+      $("cslide").insertAdjacentHTML("beforeend", `<p class="q">Find the welfare-maximizing t (within 3 percentage points). Watch the total utility figure and the curve as you move.</p><button class="btn primary" id="lock">Lock in t</button><div id="cfb"></div>`);
+      let tries = 0;
+      $("lock").onclick = () => {
+        tries++;
+        const o = soc(), s = Econ.society(o, t), up = Econ.society(o, Math.min(1, t + 0.01)).welfare, dn = Econ.society(o, Math.max(0, t - 0.01)).welfare;
+        if (Math.abs(t - best.t) <= 0.03 + 1e-9) {
+          $("lock").disabled = true; $("t").disabled = true; showBest = best.t; draw();
+          add(tries === 1 ? 3 : 1);
+          $("cfb").innerHTML = `<div class="lesson good">The best t is <strong>${Math.round(best.t * 1000) / 10}%</strong> (total utility ${F(best.welfare, 3)}). There each labourer has ${money(best.yP)} and the rich man ${money(best.yR)}: still <strong>${F(best.ratio, 1)} times</strong> as much. Total income has fallen to ${money(best.output)}.</div>`;
+          askWhy(best);
+        } else {
+          $("cfb").innerHTML = `<div class="lesson bad">Not the peak: total utility is ${F(s.welfare, 3)} at ${Math.round(t * 100)}%. ${up > s.welfare ? "It rises if you move a little more: the labourers' gain still beats the lost output." : dn > s.welfare ? "It rises if you move a little less: the lost output now outweighs the labourers' gain." : "Look at the curve."}</div>`;
+        }
+      };
+    },
+  });
+  function askWhy(best) {
+    Learn.mcq($("c2"), {
+      label: "Explain it", q: `Why does the best society still leave the rich man with ${F(best.ratio, 1)} times a labourer's income?`,
+      choices: [
+        { t: "Past it, another pound moved gains less than the lost output costs", ok: true, fb: "That is a marginal comparison: keep going while the gain from the next pound beats its cost, stop where they are equal. Bentham's limit is the cost side." },
+        { t: "Because the rich man's pleasure counts for more than a labourer's", fb: "In our model every breast counts the same: u(y) = y^θ for all. The inequality comes from the lost output, not from weighting the rich." },
+        { t: "His income is profit, the reward of abstinence, as Senior held", fb: "Senior did call profit the reward of abstinence (Hunt, p. 149), but that is a defence of an income, not a term in this sum. The model counts only pleasures and pains; desert never enters." },
+        { t: "At that share total income, not utility, is at its highest", fb: `Total income is highest at t = 0 (£1,000,200). At the best t it is ${money(best.output)}. Bentham maximized pleasure, not income.` },
+      ],
+      onSolve: first => {
+        if (first) add(2);
+        $("cafter").innerHTML = `<div class="lesson">Bentham's own standard for the right degree of inequality: it “should be that which has place in the Anglo-American United States: meaning always those in which slave-holding has no place” (quoted in Hunt, p. 133). Hunt adds that those states were then much less unequal than England, so the standard meant a radical reform (p. 134). Our ${F(best.ratio, 1)} times is not a figure Bentham gave; it comes from our k. The shape is his: redistribute, but stop short of equality.</div>
+          <div class="actions"><button class="btn primary" id="next">Next: Senior's lens</button></div>`;
+        $("next").onclick = stageD;
+      },
+    });
+  }
+}
+
+// ---------- stage d: Senior's lens ----------
+function stageD() {
+  stage = 3; senior = true; showBest = null; chartOn = true; bar(); draw();
+  $("stage").innerHTML = `<span class="role">You are Nassau Senior</span><h2 style="font-size:1.7rem">4. Senior's lens</h2>
+    <p>Nassau Senior denied both premises of Bentham's case (Hunt, pp. 144–45). Against satiety: “no person feels his whole wants to be adequately supplied; . . . every person has some unsatisfied desires which he believes that additional wealth would gratify.” Against comparison: “the nature and urgency of each individual's wants are as various as the differences in individual character.”</p>
+    <p>So the left panel now shows only what can be observed. Incomes are still there. Every utility figure has become “?”. Move the slider.</p>
+    <div id="dslide"></div><div id="d1"></div><div id="dafter"></div>`;
+  slider($("dslide"));
+  Learn.mcq($("d1"), {
+    label: "Your verdict", q: "Looking through Senior's lens, what can the economist conclude about moving money from the richest man to the labourers?",
+    choices: [
+      { t: "Nothing about total pleasure; that needs a comparison between persons", ok: true, fb: "The best t of stage 3 came from adding ten labourers' utility to one rich man's. Senior's premise removes that sum. In 1938 Lionel Robbins turned this into doctrine: comparisons of utility between persons are value judgments, not science." },
+      { t: "That redistribution lowers total pleasure, since no one is ever satiated", fb: "Senior did deny satiety: the rich man still wants more. But to say his loss outweighs the labourers' gain is again a comparison between persons, only the other way round. Senior's premises take the measure away; they do not reverse it." },
+      { t: "That the stage 3 answer stands, since incomes can be observed", fb: "Incomes are observable; utilities are not. The stage 3 answer came from adding u(labourer) ten times to u(rich man), the very step Senior denies." },
+      { t: "That t should be 0, because observable total income is highest there", fb: "Total income is observable and highest at t = 0 in our model. But “maximize income” is a goal someone has chosen, not a finding. Senior's objection gives no license for it." },
+    ],
+    onSolve: first => {
+      if (first) add(2);
+      $("dafter").innerHTML = `<div class="lesson">Hunt's reading (p. 145): later utility theorists were generally more conservative than Bentham, so they needed to deny exactly these two egalitarian premises. The lens does not make redistribution wrong. It makes economics silent about it, and that silence leaves the existing distribution standing.</div>
+        <div class="actions"><button class="btn primary" id="next">Next: who holds the purse?</button></div>`;
+      $("next").onclick = stageE;
+    },
+  });
+}
+
+// ---------- stage e: Hunt's critique ----------
+function stageE() {
+  stage = 4; senior = false; k = K_LIMIT; showBest = Econ.bestShare(soc()).t; bar(); draw();
+  $("stage").innerHTML = `<span class="role">You are the critic</span><h2 style="font-size:1.7rem">5. Who holds the purse?</h2>
+    <p>Every slider in this game was held by a legislator who wanted the greatest total of everyone's pleasure. But Bentham's own premise about people is this: “in every human breast, self-regarding interest is predominant over all other interests put together” (quoted in Hunt, p. 131).</p>
+    <div id="e1"></div><div id="eafter"></div>`;
+  Learn.mcq($("e1"), {
+    label: "Hunt's question", q: "On Bentham's own premise, who actually moves the slider?",
+    choices: [
+      { t: "Egoists, who may gain more by serving the rich than the poor", ok: true, fb: "This is Hunt's critique (p. 134). Redistribution needs a government with no interests of its own, impartial among all. Bentham's government is made of ordinary egoists, and they are more likely to profit from serving the rich than the poor." },
+      { t: "A benevolent, impartial government that cares equally about everyone", fb: "That is what the reform needs. Hunt's point (p. 134) is that Bentham's own theory of human nature does not supply it." },
+      { t: "The market, which settles the distribution of income by itself", fb: "No market moves income from the richest man to the labourers. Here t is a political choice." },
+      { t: "The rich man, who gives freely once he sees the labourers' gain", fb: "On Bentham's premise each puts his own interest first, and the rich man loses pleasure by giving." },
+    ],
+    onSolve: first => {
+      if (first) add(2);
+      $("eafter").innerHTML = `<div class="lesson"><strong>The strongest reply on Bentham's side.</strong> His later answer was to change who governs. His <em>Plan of Parliamentary Reform</em> (printed 1817, published 1818) called for universal manhood suffrage (for literate men), equal electoral districts, annual elections, and the secret ballot, which he thought most important. If the many choose the legislators, their egoism points toward the labourers. Whether that answers Hunt is a question worth arguing.</div>
+        <div class="actions"><button class="btn primary" id="next">Last: your first guess</button></div>`;
+      $("next").onclick = stageF;
+    },
+  });
+}
+
+// ---------- stage f: back to the home-page hook ----------
+function stageF() {
+  stage = 5; bar(); draw();
+  const said = Ledger.note("hook");
+  const rows = [["k50000", 50000, "50,000 times"], ["k1000", 1000, "about 1,000 times"], ["kfew", R, `a few times (R = ${R}, Bentham)`]].map(([key, RR, label]) => {
+    const tt = Econ.theta(RR), b = Econ.bestShare({ nPoor: N_POOR, yPoor: Y_POOR, nRich: 1, yRich: Y_RICH, th: tt, k: K_LIMIT });
+    return { key, label, th: tt, mu: 50000 / RR, best: b };
+  });
+  const table = `<div class="table-scroll"><table class="data" style="margin-top:8px">
+    <tr><th>If the rich man has …</th><th>θ</th><th>His last pound vs a labourer's</th><th>Best t (k = ${K_LIMIT})</th></tr>
+    ${rows.map(x => `<tr${x.key === said ? ' style="background:rgba(220,177,95,.12)"' : ""}><td>${x.label}</td><td>${F(x.th, 3)}</td><td>${x.mu === 1 ? "equal" : `1/${F(x.mu)}`}</td><td>${Math.round(x.best.t * 1000) / 10}%</td></tr>`).join("")}
+    <tr${said === "knone" ? ' style="background:rgba(220,177,95,.12)"' : ""}><td>cannot be compared (Senior)</td><td>—</td><td>?</td><td>no verdict</td></tr></table></div>`;
+  const NOW = {
+    k50000: `You guessed <strong>50,000 times</strong>: pleasure in step with money. Bentham called that “assuredly more than any man would take it upon himself to say.” Now you can say what it implies: θ = 1, a pound is worth the same to everyone, and moving money gains nothing. With any cost to output, the best t is 0. Your guess, not Bentham's, is the one that leaves inequality alone.`,
+    k1000: `You guessed <strong>about 1,000 times</strong>. Now you can say what it implies: θ = ${F(rows[1].th, 3)}, so a labourer's last pound is worth ${F(rows[1].mu)} times the rich man's. That is still a strong case for redistribution, though weaker than Bentham's own. Bentham thought even five times “a very large, not to say excessive allowance.”`,
+    kfew: `You guessed <strong>a few times at most</strong>: Bentham's own answer. Now you can say what it implies: with R = ${R}, a labourer's last pound is worth ${F(50000 / R)} times the rich man's, which makes a powerful case for redistribution, limited only by the inducement to labour.`,
+    knone: `You guessed that <strong>it cannot be compared</strong>: Senior's answer. Now you can say what it implies: in stage 4 the slider had no verdict at all. Economics falls silent on redistribution, and Hunt's point is that this silence suited theorists more conservative than Bentham (p. 145).`,
+  };
+  $("stage").innerHTML = `<span class="role">Back to the beginning</span><h2 style="font-size:1.7rem">6. Your first guess</h2>
+    <p>On the home page you were asked: the richest man has an income 50,000 times the labourer's. How many times more pleasure does he have?</p>
+    <div class="lesson">${said && NOW[said] ? NOW[said] : `You have not answered the question on the <a href="../index.html">home page</a> yet (or this browser did not keep your answer). Here is what each answer implies.`}</div>
+    ${table}
+    <p class="muted" style="font-size:.88rem;margin-top:6px">Computed in our model (10 labourers at £20, one man at £1,000,000, k = ${K_LIMIT}).${said && NOW[said] ? " The highlighted row is your first guess." : ""}</p>
+    <div class="actions"><button class="btn primary" id="done">Finish and read the debrief</button></div><div id="debrief"></div>`;
+  $("done").onclick = finish;
+}
+
+function finish() {
+  $("done").disabled = true;
+  stage = STAGES.length; bar();
+  Ledger.complete("g-purse", { score, R });
+  $("debrief").innerHTML = `<div class="lesson"><strong>Seal earned</strong> with ${score} points.</div>
+    <h3 style="margin-top:18px;font-size:1.4rem">Debrief</h3>
+    <p>Three things to be able to say without looking:</p>
+    <ol>
+      <li><strong>Bentham's guess is diminishing marginal utility of money.</strong> If 50,000 times the money brings only ${R} times the pleasure, a pound is worth ${F(50000 / R)} times as much to the labourer. “All other things being equal,” moving money from rich to poor raises total utility (Hunt, p. 133).</li>
+      <li><strong>Bentham was not an egalitarian.</strong> The inducement to labour sets a limit, and the best society stays unequal. His standard was the Anglo-American United States, “meaning always those in which slave-holding has no place,” which was far less unequal than England then (Hunt, pp. 133–34).</li>
+      <li><strong>Two critics.</strong> Senior denied satiety and interpersonal comparison, which silences the argument (Hunt, pp. 144–45). Hunt asks who would carry out the reform: a government of egoists has its own interests (p. 134).</li>
+    </ol>
+    <p>On the course question: in this argument Bentham does not leave harmony to the market. The rich man's pleasure and the labourers' pull against each other over every pound, and only the legislator's sum can weigh them. Hunt notes that this split, laissez-faire early and reformer late, was carried into neoclassical economics (p. 134). Modern economics kept diminishing marginal utility. It mostly dropped the comparison between persons that gave it this egalitarian edge.</p>
+    <div class="actions"><a class="btn primary" href="chest.html">Next: The Money in the Chest →</a><button class="btn" id="again">Play again</button></div>`;
+  $("again").onclick = () => { stage = 0; R = null; th = null; t = 0; k = 0; score = 0; senior = false; showBest = null; chartOn = false; stageA(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+}
+
+if (Ledger.isDone("g-purse")) $("best").textContent = "· sealed already";
+stageA();
+})();
+</script>
+</body>
+</html>

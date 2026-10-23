@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Examination</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .exam { max-width: 820px; }
+    .qhead { display: flex; justify-content: space-between; gap: 10px; color: var(--ink-soft); font-size: .9rem; margin-bottom: 10px; }
+    .dots { display: flex; gap: 5px; margin-bottom: 18px; }
+    .dots span { flex: 1; height: 6px; border-radius: 3px; background: var(--rule); }
+    .dots span.ok { background: var(--right); } .dots span.no { background: var(--wrong); } .dots span.now { background: var(--accent); }
+    .q { font-size: 1.08rem; }
+    .kind { font: 700 .75rem var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+    .review { margin-top: 18px; }
+    .review li { margin-bottom: 14px; }
+    .review .given { color: var(--wrong); }
+    .cert { text-align: center; padding: 48px 32px; border: 3px double var(--accent); border-radius: 4px; background: radial-gradient(circle at 50% 0%, #1f4239, #142e28 70%); }
+    @media (max-width: 520px) { .cert { padding: 32px 16px; } }
+    .cert .t { font: 400 clamp(2.2rem, 7vw, 3.2rem)/1.1 var(--f-script); color: var(--accent); margin: 10px 0; }
+    .cert .nm { font: 600 clamp(1.6rem, 5vw, 2.2rem) var(--f-display); border-bottom: 1px solid var(--rule); display: inline-block; min-width: 60%; padding: 0 12px 4px; margin: 10px 0 18px; overflow-wrap: anywhere; }
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      body::before { display: none; }
+      .site-header, .site-footer, .noprint, .page-head { display: none !important; }
+      .card { box-shadow: none; border: none; background: #fff; }
+      .cert { border-color: #000; background: #fff; color: #000; }
+      .cert .t, .cert .eyebrow, .cert .muted { color: #000; }
+    }
+  </style>
+</head>
+<body data-root="../" data-step="exam">
+<main class="wrap exam">
+  <header class="page-head" style="padding-bottom:16px">
+    <p class="eyebrow"><a href="../play.html" style="text-decoration:none">Play and Learn</a> · The Examination</p>
+    <h1>The Examination</h1>
+    <p class="lede">Twelve questions, one attempt each: six computations on the site's models of Bentham and six on ideas. The numbers are drawn fresh every time, so the only way through is to know how the models work. Ten right earns the certificate. A calculator helps.</p>
+  </header>
+  <div class="card" id="box"></div>
+</main>
+<script src="../js/site.js"></script>
+<script src="../js/learn.js"></script>
+<script src="../js/econ.js"></script>
+<script>
+(function () {
+if (document.body.dataset.locked) return;
+const $ = id => document.getElementById(id);
+
+// ---- pure (tested in node) ----
+const fm = Econ.fmt, R = Econ.rnd, pick = Econ.pick;
+const r4 = v => Math.round(v * 10000) / 10000;
+const f2 = v => fm(v, 2), f4 = v => fm(v, 4);
+// num: {kind, q, answer, tol, unit, explain}   mcq: {kind, q, choices:[{t, ok}], explain}
+const CALC = {
+  lot() {
+    const I = R(2, 9), D = R(2, 6), c = pick([0.5, 0.6, 0.75, 0.8, 0.9]), pr = pick([0.5, 0.75, 0.8, 0.9]);
+    const fp = pick([0.2, 0.25, 0.4, 0.5]), fv = R(2, 12), ip = pick([0.1, 0.2, 0.25, 0.5]), iv = R(2, 12);
+    const L = Econ.lot({ intensity: I, duration: D, certainty: c, propinquity: pr, fecundity: { p: fp, v: fv }, impurity: { p: ip, v: iv } });
+    return { kind: "The felicific calculus",
+      q: `A pleasure has intensity <strong>${I}</strong> and lasts <strong>${D}</strong> hours. Its certainty is <strong>${c}</strong> and, because it lies some way off, its propinquity weight is <strong>${pr}</strong>. With probability <strong>${fp}</strong> it is followed by a further pleasure worth <strong>${fv}</strong> (fecundity). With probability <strong>${ip}</strong> it is followed by a pain worth <strong>${iv}</strong> (impurity). On the site's model of the calculus, what is the value of this lot of pleasure? (two decimals)`,
+      answer: L.value, tol: 0.011,
+      explain: `Value = intensity × duration × certainty × propinquity + fecundity − impurity = ${I} × ${D} × ${c} × ${pr} + ${fp} × ${fv} − ${ip} × ${iv} = ${f2(L.base)} + ${f2(L.fec)} − ${f2(-L.imp)} = <strong>${f2(L.value)}</strong>.` };
+  },
+  extent() {
+    const n1 = R(20, 60), a = R(2, 6), b = R(1, 4), n2 = R(2, 9), c = R(3, 9), d = R(2, 6);
+    const A = Econ.act([{ persons: n1, lots: [{ intensity: a, duration: b }] }, { persons: n2, lots: [{ intensity: c, duration: d, pain: true }] }]);
+    return { kind: "Extent",
+      q: `A proposed law gives each of <strong>${n1}</strong> persons a pleasure of intensity <strong>${a}</strong> lasting <strong>${b}</strong> day${b > 1 ? "s" : ""}. It gives each of <strong>${n2}</strong> persons a pain of intensity <strong>${c}</strong> lasting <strong>${d}</strong> days. All are certain and immediate. Counting everyone affected (extent), what is the net value of the law? (a negative number means net pain)`,
+      answer: A.total, tol: 0.001,
+      explain: `Pleasure: ${n1} × ${a} × ${b} = ${fm(A.rows[0].sum)}. Pain: ${n2} × ${c} × ${d} = ${fm(-A.rows[1].sum)}. Net: <strong>${fm(A.total)}</strong>. ${A.total > 0 ? "The legislator should pass it." : A.total < 0 ? "The legislator should reject it." : "The legislator is indifferent."}` };
+  },
+  theta() {
+    const Rr = pick([2, 3, 4, 5, 10]), th = Econ.theta(Rr);
+    return { kind: "Diminishing marginal utility",
+      q: `Bentham asked how many times more pleasure the richest man has, with an income 50,000 times the labourer's. Suppose the answer is <strong>${Rr}</strong> times. In the site's model, utility is u(y) = y<sup>θ</sup>. What is θ? (three decimals)`,
+      answer: th, tol: 0.0011,
+      explain: `50,000<sup>θ</sup> = ${Rr}, so θ = ln ${Rr} ÷ ln 50,000 = ${f4(Math.log(Rr))} ÷ ${f4(Math.log(50000))} = <strong>${fm(th, 4)}</strong>.` };
+  },
+  muRatio() {
+    const th = r4(Econ.theta(pick([2, 5]))), ratio = pick([100, 1000, 10000, 50000]), yP = pick([10, 20, 25, 40]), yR = yP * ratio;
+    const ans = Econ.mu(yP, th) / Econ.mu(yR, th);
+    return { kind: "Diminishing marginal utility",
+      q: `Utility of income is u(y) = y<sup>θ</sup> with θ = <strong>${th}</strong>. A labourer has an income of <strong>${fm(yP)}</strong>; a rich man has <strong>${fm(yR)}</strong>. How many times greater is the marginal utility of one more pound to the labourer than to the rich man? (nearest whole number)`,
+      answer: ans, tol: Math.max(0.51, ans * 0.005),
+      explain: `Marginal utility is θ·y<sup>θ−1</sup>, so the ratio is (${fm(yR)} ÷ ${fm(yP)})<sup>1−θ</sup> = ${fm(ratio)}<sup>${fm(1 - th, 4)}</sup> = <strong>${fm(ans, 1)}</strong>.` };
+  },
+  transfer() {
+    const th = r4(Econ.theta(pick([2, 5]))), nPoor = pick([10, 20, 50, 100]), yPoor = pick([20, 25, 40, 50]), yRich = yPoor * 50000, t = pick([0.1, 0.2, 0.25, 0.5]);
+    const o = { nPoor, yPoor, nRich: 1, yRich, th, k: 0 }, a = Econ.society(o, 0), b = Econ.society(o, t), ans = b.welfare - a.welfare;
+    return { kind: "Redistribution",
+      q: `A society has <strong>${nPoor}</strong> labourers with incomes of <strong>${fm(yPoor)}</strong> each and one rich man with <strong>${fm(yRich)}</strong> (50,000 times as much). Utility is u(y) = y<sup>θ</sup> with θ = <strong>${th}</strong>. A share <strong>${t}</strong> of the rich man's income is taken and divided equally among the labourers. Assume no loss of output (k = 0). By how much does total utility, summed over all persons, change? (two decimals)`,
+      answer: ans, tol: Math.max(0.02, Math.abs(ans) * 0.002),
+      explain: `Before: ${nPoor} × ${fm(yPoor)}<sup>θ</sup> + ${fm(yRich)}<sup>θ</sup> = ${nPoor} × ${f4(a.uP)} + ${f4(a.uR)} = ${f2(a.welfare)}. Each labourer gains ${t} × ${fm(yRich)} ÷ ${nPoor} = ${fm(b.yP - yPoor)}, so has ${fm(b.yP)}; the rich man keeps ${fm(b.yR)}. After: ${nPoor} × ${f4(b.uP)} + ${f4(b.uR)} = ${f2(b.welfare)}. Change: <strong>${f2(ans)}</strong>. The labourers gain far more utility than the rich man loses.` };
+  },
+  spending() {
+    const Y = R(80, 120) * 10, s = pick([0.1, 0.12, 0.15, 0.2]), h = R(10, 60) / 100;
+    const n = Econ.year({ Y, P: 1 }, { s, h, M: 0, F: 1000 });
+    return { kind: "The money in the chest",
+      q: `Spending this year is Y = <strong>${fm(Y)}</strong>. Savers put aside a share s = <strong>${s}</strong> of income, and a share h = <strong>${h.toFixed(2)}</strong> of their savings goes into a chest. No new money is issued. On the site's model, what is next year's spending D? (one decimal)`,
+      answer: n.Y, tol: 0.06,
+      explain: `D = Y − s·h·Y + M = ${fm(Y)} − ${s} × ${h.toFixed(2)} × ${fm(Y)} + 0 = ${fm(Y)} − ${fm(n.hoard, 2)} = <strong>${fm(n.Y, 2)}</strong>.` };
+  },
+  restore() {
+    const F = 1000, P = R(80, 100) / 100, Y = Math.round(F * P * R(90, 100) / 100 * 10) / 10, s = pick([0.1, 0.12, 0.15, 0.2]), h = R(10, 60) / 100;
+    const M = F * P - (1 - s * h) * Y;
+    return { kind: "The money in the chest",
+      q: `Capacity output is F = <strong>1,000</strong> and last year's price level is P = <strong>${P.toFixed(2)}</strong>. Spending this year is Y = <strong>${fm(Y, 1)}</strong>. Savers put aside s = <strong>${s}</strong> of income, and h = <strong>${h.toFixed(2)}</strong> of savings goes into a chest. How much new money M makes next year's spending exactly buy capacity output at last year's prices (g = 1)? (one decimal)`,
+      answer: M, tol: 0.06,
+      explain: `Spending must reach F × P = ${fm(F * P, 1)}. With M = 0 it would be Y − s·h·Y = ${fm(Y, 1)} − ${fm(s * h * Y, 2)} = ${fm((1 - s * h) * Y, 2)}. So M = ${fm(F * P, 1)} − ${fm((1 - s * h) * Y, 2)} = <strong>${fm(M, 2)}</strong>.` };
+  },
+  water() {
+    const qs = R(1, 5), k = pick([4, 9, 16, 25, 36, 100]), qp = qs * k, ans = Econ.mu(qs, 0.5) / Econ.mu(qp, 0.5);
+    return { kind: "Water and diamonds",
+      q: `Treat the utility of water to a household as u(q) = q<sup>0.5</sup>, where q is pails a day. How many times greater is the marginal utility of the next pail when the household has <strong>${qs}</strong> pail${qs > 1 ? "s" : ""} (scarce) than when it has <strong>${qp}</strong> (plentiful)?`,
+      answer: ans, tol: 0.011,
+      explain: `Marginal utility is 0.5·q<sup>−0.5</sup>, so the ratio is (${qp} ÷ ${qs})<sup>0.5</sup> = √${k} = <strong>${fm(ans)}</strong>. Bentham went further: “If the whole quantity required is available, the surplus has no kind of value” (Hunt, p. 132).` };
+  },
+};
+
+const IDEAS = {
+  value: [
+    { q: "Smith used water and diamonds to show that use does not explain exchange value. Bentham replied that:", choices: [
+        { ok: true, t: "Water lacks exchange value only where it is so plentiful that the surplus has no use; scarce water sells." },
+        { t: "Water's exchange value is the labor of carrying it into houses, which is why the water carriers of Paris can charge." },
+        { t: "Water's low price shows it is of little use, since exchange value is an exact index of a thing's utility." }],
+      explain: "“If the whole quantity required is available, the surplus has no kind of value” (Hunt, p. 132). The Paris water carriers were his evidence that water sells, not a labor theory: “All value is founded on utility” (p. 131). And he never says water is of little use; only the surplus is. Hunt says he came “very close” to the principle of marginal utility (p. 131)." },
+    { q: "Bentham wrote that “it is by the degrees of that value that wealth is measured.” Why would Ricardo object?", choices: [
+        { ok: true, t: "When labor grows more productive, goods fall in value while the nation's wealth rises, so value cannot measure wealth." },
+        { t: "Ricardo denied that a thing must be useful at all to have exchange value, so use could play no part in measuring wealth." },
+        { t: "Ricardo held that rent, not value, measures a nation's wealth, since rent rises as the nation grows richer." }],
+      explain: "Smith and Ricardo agreed that use value is necessary for exchange value. Hunt's objection for Ricardo: “an increase in the productivity of labor lowers the value of a commodity while increasing the general wealth” (p. 131). Rent plays no part in this passage." },
+  ],
+  say: [
+    { q: "Which assumption separates Say's law from the later Bentham's money in the chest?", choices: [
+        { ok: true, t: "Say treats money only as a means of exchange that no one holds; Bentham supposes it can be kept idle in a chest." },
+        { t: "Say thinks saving always helps the nation; Bentham thinks frugality as such is harmful and should be discouraged by law." },
+        { t: "Say lets prices adjust to clear any glut; Bentham assumes prices are fixed, so unsold goods simply pile up in warehouses." }],
+      explain: "For Say, money “had no inherent importance but was merely a means of facilitating exchange” (Hunt, p. 137). Bentham never proposes to discourage frugality; his remedy is new money. And in his chest prices fall (p. 133). Only the hoarding (h > 0) separates them." },
+    { q: "Say granted that some goods could be in glut. How did he explain it?", choices: [
+        { ok: true, t: "Some prices were too high and others too low; gluts of some goods matched shortages of others until capital moved." },
+        { t: "Some money was kept idle instead of spent, so demand fell short of supply until the hoarders brought it back out." },
+        { t: "Buyers of those goods had become satiated and wanted no more, so producers had to find new wants to supply instead." }],
+      explain: "“If there is an overstock, of many kinds of goods, it is because other goods are not produced in sufficient quantities” (Say, in Hunt, p. 138). Idle money is the later Bentham's case. Satiety is the only cause of a general glut Senior would consider, and he denied it (p. 145)." },
+  ],
+  senior: [
+    { q: "Hunt says two premises underlie Bentham's case for moving wealth from the rich to the poor, and that Senior denied both. They are:", choices: [
+        { ok: true, t: "That people can become satiated, and that the utilities of two people can be compared." },
+        { t: "That all labor is painful, and that capital produces utility just as labor does." },
+        { t: "That population presses on subsistence, and that land yields diminishing returns." }],
+      explain: "Senior: “no person feels his whole wants to be adequately supplied,” and wants are “as various as the differences in individual character” (Hunt, p. 145). He accepted that labor is painful and capital productive (p. 147), and his own second and fourth propositions concern population and diminishing returns (p. 144)." },
+    { q: "Senior denied that anyone is ever satiated. Besides Bentham's case for redistribution, what did he use that denial against?", choices: [
+        { ok: true, t: "The general glut: such a glut would require “a general satiety.”" },
+        { t: "Ricardo's stationary state: diminishing returns must stop growth." },
+        { t: "Say's law: a supply creates a demand of the same size." }],
+      explain: "Senior: “the only … hypothesis on which the existence of a general glut can be supposed is that of a general satiety” (Hunt, p. 145). Since the desire for wealth is insatiable, he concluded, there can be no general glut: he used the denial against Malthus and on Say's side. Senior escaped the stationary state through agricultural improvement, not insatiability (p. 148)." },
+  ],
+  hunt: [
+    { q: "What “inadequacy” does Hunt find in Bentham's reformist phase (p. 134)?", choices: [
+        { ok: true, t: "Reform needs an impartial government, but legislators are egoists who may gain more by serving the rich." },
+        { t: "Transfers to the poor would weaken their inducement to labor, so redistribution shrinks the wealth it shares." },
+        { t: "The pleasures of two people cannot be compared, so no legislator can know that a transfer adds to happiness." }],
+      explain: "Hunt: the government “was not made up of angels, or ‘philosopher kings,’” and the question is whether legislators gain more “by promoting the interests of the poor or the interests of the rich” (p. 134). The inducement to labor is Bentham's own limit (p. 133). The comparison problem is Senior's (p. 145)." },
+  ],
+  jevons: [
+    { q: "W. S. Jevons, <em>Theory of Political Economy</em> (1871), ch. II “Theory of Pleasure and Pain”: what did he take from Bentham?", choices: [
+        { ok: true, t: "Bentham's circumstances of a pleasure (intensity, duration, certainty, propinquity), the base for marginal utility." },
+        { t: "Bentham's view that profit rewards the capitalist's abstinence, which became the basis of a theory of interest." },
+        { t: "Bentham's labor theory of value, which Jevons extended from manufactured goods to the produce of the land." }],
+      explain: "Jevons's chapter opens with Bentham's circumstances and builds marginal utility on them: the line from Bentham's calculus to neoclassical economics. Abstinence is Senior's idea (Hunt, p. 147), and Bentham founded value on utility, not labor (p. 131)." },
+  ],
+  turn: [
+    { q: "How did Bentham's view of government change?", choices: [
+        { ok: true, t: "Early: no regulation can raise the wealth produced. By 1801: hoarding and inequality give government work to do." },
+        { t: "Early: government should direct capital to the best trades. By 1801: he accepted Smith's free market instead." },
+        { t: "It did not change: he always held that government should do no more than enforce contracts and protect property." }],
+      explain: "Early: “no regulations nor any efforts whatsoever, either on the part of subjects or governors, can raise the quantity of wealth produced during a given period” (Hunt, p. 132). By 1801: “I have not … any horror, sentimental or anarchical, of the hand of government” (p. 132). Hunt calls it “a split or antagonism” (p. 134)." },
+    { q: "Which of these belongs to the <em>early</em> Bentham?", choices: [
+        { ok: true, t: "“adds proportionately to the general mass of capital”" },
+        { t: "“I have not … any horror, sentimental or anarchical, of the hand of government”" },
+        { t: "“the money introduced … becomes a source of increasing wealth”" }],
+      explain: "“Whoever saves money,” Bentham asserted, “adds proportionately to the general mass of capital”: the early view, shared with Say (Hunt, p. 132). The other two come after the change (pp. 132–33): government interference welcomed, and new money as the remedy for hoarding." },
+  ],
+};
+function build() {
+  const calc = Learn.shuffle(Object.keys(CALC)).slice(0, 6).map(k => Object.assign({ id: k }, CALC[k]()));
+  const ideas = Object.keys(IDEAS).map(k => Object.assign({ id: k, kind: "Ideas" }, pick(IDEAS[k])));
+  return Learn.shuffle(calc.concat(ideas));
+}
+const isRight = (q, v) => Math.abs(v - q.answer) <= (q.tol || 0.001);
+// ---- end pure ----
+
+let qs, i, right;
+function start() { qs = build(); i = 0; right = 0; ask(); }
+function dots() { return `<div class="dots">${qs.map((q, k) => `<span class="${k < i ? (q.ok ? "ok" : "no") : k === i ? "now" : ""}"></span>`).join("")}</div>`; }
+function ask() {
+  const q = qs[i];
+  $("box").innerHTML = dots() + `<div class="qhead"><span>Question ${i + 1} of ${qs.length} · <span class="kind">${q.kind}</span></span><span>${right} right so far</span></div>
+    <div class="q">${q.q}</div><div id="ans" style="margin-top:12px"></div><div class="feedback" id="fb"></div><div id="nx"></div>`;
+  const finish = ok => {
+    q.ok = ok; if (ok) right++;
+    $("fb").className = "feedback show " + (ok ? "good" : "bad");
+    $("fb").innerHTML = `<strong>${ok ? "Right." : "Wrong."}</strong> ${q.explain}`;
+    $("nx").innerHTML = `<button class="btn primary" style="margin-top:12px">${i + 1 < qs.length ? "Next question" : "See result"}</button>`;
+    $("nx").querySelector("button").onclick = () => { i++; i < qs.length ? ask() : result(); };
+  };
+  if (q.choices) {
+    const ch = Learn.shuffle(q.choices);
+    $("ans").innerHTML = `<div class="choices">${ch.map((c, k) => `<button type="button" data-k="${k}"><span class="key">${"ABC"[k]}</span> ${c.t}</button>`).join("")}</div>`;
+    $("ans").querySelectorAll("button").forEach(b => b.onclick = () => {
+      const c = ch[+b.dataset.k];
+      $("ans").querySelectorAll("button").forEach((x, k) => { x.disabled = true; if (ch[k].ok) x.classList.add("right"); });
+      if (!c.ok) b.classList.add("wrong");
+      q.given = c.t;
+      finish(!!c.ok);
+    });
+  } else {
+    $("ans").innerHTML = `<div class="numrow"><input type="number" step="any" inputmode="decimal" id="v" aria-label="Your answer"> <span class="muted">${q.unit || ""}</span> <button type="button" class="btn small primary" id="sub">Submit</button></div>`;
+    const sub = () => {
+      const v = parseFloat($("v").value); if (isNaN(v)) return;
+      $("v").disabled = $("sub").disabled = true;
+      q.given = String(v);
+      finish(isRight(q, v));
+    };
+    $("sub").onclick = sub; $("v").addEventListener("keydown", e => e.key === "Enter" && sub()); $("v").focus();
+  }
+}
+function review() {
+  const wrong = qs.filter(q => !q.ok);
+  if (!wrong.length) return "";
+  return `<div class="review"><h3>Worked answers to the ones you missed</h3><ol>${wrong.map(q =>
+    `<li><div>${q.q}</div><div class="given">You answered: ${q.given}</div><div class="muted">${q.explain}</div></li>`).join("")}</ol></div>`;
+}
+function result() {
+  const pass = right >= 10;
+  if (!pass) {
+    $("box").innerHTML = dots() + `<h2>${right} of ${qs.length}</h2><p>The certificate needs 10. The calculus questions go back to <a href="calculus.html">the Felicific Calculus</a>, utility of money and transfers to <a href="purse.html">the Labourer and the Richest Man</a>, hoarding to <a href="chest.html">the Money in the Chest</a>, and ideas to <a href="tribunal.html">the Tribunal</a> and <a href="../ideas.html">Key Ideas</a>. The next attempt uses new numbers.</p>
+      <button class="btn primary" id="again">Sit the examination again</button>` + review();
+    $("again").onclick = start; return;
+  }
+  Ledger.complete("exam", { right });
+  const saved = Ledger.note("cert-name") || "";
+  const date = new Date().toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
+  $("box").innerHTML = `<div class="noprint">${dots()}<p><strong>${right} of ${qs.length}.</strong> Passed. Type your name for the certificate (it stays in this browser), then print.</p>
+      <div class="numrow" style="margin-bottom:20px"><input type="text" id="nm" placeholder="Your name" style="width:16em;max-width:100%" aria-label="Your name"><button type="button" class="btn small" id="print">Print certificate</button></div></div>
+    <div class="cert">
+      <div class="eyebrow">A History of Economic Thought · Build 3</div>
+      <div class="t">Certificate of Felicific Understanding</div>
+      <p>This is to certify that</p>
+      <div class="nm" id="nmout"></div>
+      <p style="max-width:52ch;margin:0 auto 14px">can value a lot of pleasure by Bentham's circumstances, show why a pound means more to the labourer than to the richest man, explain how money kept in a chest can leave men idle, and say why Bentham lands on both sides of the question of harmony and conflict.</p>
+      <p class="muted">${right} of ${qs.length} on the Examination · ${date}</p>
+    </div>
+    <div class="noprint">${review()}<p style="margin-top:18px"><a href="../index.html#ledger">Back to your ledger</a></p></div>`;
+  $("nm").value = saved;
+  $("nmout").textContent = saved || " ";
+  $("nm").oninput = () => { $("nmout").textContent = $("nm").value || " "; Ledger.note("cert-name", $("nm").value); };
+  $("print").onclick = () => window.print();
+}
+start();
+})();
+</script>
+</body>
+</html>

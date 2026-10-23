@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Tribunal of Utility</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .club { max-width: 900px; }
+    .room { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .room .meter { flex: 1; }
+    .room .meter i { width: 0; background: linear-gradient(90deg, var(--accent), var(--right)); transition: width .5s; }
+    .room b { font: 700 1.1rem var(--f-display); color: var(--accent); min-width: 5.5em; text-align: right; }
+    .speaker { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; align-items: start; }
+    @media (max-width: 600px) { .speaker { grid-template-columns: 76px minmax(0, 1fr); gap: 12px; } }
+    .speaker .pic { border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); background: var(--paper-2); }
+    .speaker .pic img { width: 100%; aspect-ratio: 4/5; object-fit: cover; object-position: top; filter: sepia(.2); }
+    .speaker .pic .monogram { font-size: 2.6rem; }
+    .who { font: 700 .8rem var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+    .who span { color: var(--ink-soft); font-weight: 400; letter-spacing: 0; text-transform: none; }
+    .bubble { position: relative; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 18px; font: 500 1.24rem/1.45 var(--f-display); margin-top: 6px; }
+    .words { margin-top: 12px; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--paper-2); border-radius: 6px; font-size: .97rem; }
+    .words .lab { font: 700 .75rem var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 4px; }
+    .words p { margin: 0 0 .6em; } .words p:last-child { margin: 0; }
+    .roundno { color: var(--ink-soft); font-size: .9rem; margin-bottom: 10px; }
+    .parts { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 0; font-size: .85rem; color: var(--ink-soft); }
+    .parts span { border: 1px solid var(--rule); border-radius: 999px; padding: 1px 10px; }
+    .parts span.on { border-color: var(--accent); color: var(--accent); }
+    .parts span.done { border-color: var(--right); color: var(--right); }
+  </style>
+</head>
+<body data-root="../" data-step="g-tribunal">
+<main class="wrap club">
+  <header class="page-head" style="padding-bottom:16px">
+    <p class="eyebrow"><a href="../play.html" style="text-decoration:none">Play and Learn</a> · Game 4</p>
+    <h1>The Tribunal of Utility</h1>
+    <p class="lede">You are Jeremy Bentham. The tribunal sits outside time, so your critics come from before and after you: Adam Smith, J.-B. Say, Nassau Senior, Karl Marx, John Stuart Mill, and the historian E. K. Hunt. Each challenge has two parts. First, answer as Bentham would, in his own terms. Then do what the course asks of every argument: state the opponent's point in its strongest form, the form your reply does not answer.</p>
+  </header>
+  <div class="card">
+    <div class="room"><span class="muted" style="font-size:.9rem">The tribunal</span><div class="meter"><i id="meter"></i></div><b id="pts">0 points</b></div>
+    <div id="stage"></div>
+  </div>
+  <p class="cite" style="margin-top:12px">The challengers' claims in the speech bubbles are paraphrased from Hunt &amp; Lautzenheiser, ch. 6, unless set in quotation marks. Only text in quotation marks is quoted, and each quotation is cited.</p>
+</main>
+<script src="../js/site.js"></script>
+<script src="../js/learn.js"></script>
+<script>
+(function () {
+if (document.body.dataset.locked) return;
+const $ = id => document.getElementById(id);
+const P = {
+  smith: { name: "Adam Smith", note: "author of the Wealth of Nations (1776)", img: "smith" },
+  say: { name: "Jean-Baptiste Say", note: "who called himself a disciple of Adam Smith", img: "say" },
+  senior: { name: "Nassau Senior", note: "first holder of the chair of political economy at Oxford (1825)", img: "senior" },
+  marx: { name: "Karl Marx", note: "Capital, vol. I (1867)", img: "marx" },
+  mill: { name: "John Stuart Mill", note: "raised on your principles by his father, James Mill", img: "mill" },
+  hunt: { name: "E. K. Hunt", note: "a historian of economic thought, visiting from 2011", mono: "H" },
+};
+
+// Each round: a claim, Bentham's reply (a), then the steelman (b): the strongest form of the
+// opponent's point that the reply does NOT answer. Every quotation is from Hunt ch. 6 or the verified list.
+const ROUNDS = [
+  { who: "smith",
+    says: "Value in use and value in exchange have no settled connection. Water has great value in use but none in exchange. Diamonds have great value in exchange but none in use.",
+    reply: [
+      { ok: true, t: "Your water is ill chosen. Where the whole quantity required is available, the surplus has no use, and so no exchange value. Scarce water sells." },
+      { t: "Water costs labour to carry into a house, and that labour, not its use, is what the buyer pays for. Use is a condition of value, but labour is its measure.", fb: "That is the labor theory of Smith and Ricardo. You hold that “All value is founded on utility” (Hunt, p. 131)." },
+      { t: "Diamonds bear you out, I grant: their use is trifling and men buy them from vanity. But water shows that use alone cannot give a thing its value.", fb: "You call the diamond example “as ill chosen as the other”: there is “no reason why its utility with regard to enjoyment should be doubted” (p. 132)." },
+      { t: "Price is an exact index of use: whatever a thing sells for measures its utility. So water's low price shows that water is of little use to anyone.", fb: "That is nearer Say's formula, price as “an index of the recognized utility of a thing” (p. 135). It also gives up your point: water is of great use; only the surplus beyond what is required has none." } ],
+    steel: [
+      { ok: true, t: "Use is needed for value but does not fix its size. And if value measures wealth, the cheaper goods of more productive labour look like less wealth.",
+        fb: "This is the case Hunt makes for Smith and Ricardo (p. 131). Your reply shows that scarcity matters. It gives no measure of the size of value, and it ties wealth to value: “It is by the degrees of that value that wealth is measured.”" },
+      { t: "Even scarce water sells for little next to diamonds, so scarcity cannot explain why the trinket outprices the necessity in every market of Europe.", fb: "Your reply answers this. Water is worth what the quantity in question is worth, and “there are many circumstances in which it has a value in exchange superior to that of wine” (p. 132)." },
+      { t: "What the New River Board sells is pipes and the labour of its men, not water. Its price is wages and profit, so your example proves nothing about use.", fb: "This attacks one example, and you have others: water sold in Paris, and the “many circumstances” in which it is worth more than wine (p. 132). The point about the size of value reaches your principle itself." },
+      { t: "Diamonds have no real use, so any theory that founds value on use must fail to explain why they command so high a price in every market.", fb: "Your reply already answers this, and it is the weakest form of Smith's point. You defend the utility of diamonds “with regard to enjoyment.”" } ],
+    words: `<p>“The reason why water is found not to have any value with a view to exchange is that it is equally devoid of a value with a view to use. If the whole quantity required is available, the surplus has no kind of value.” <span class="cite">(Bentham, quoted in Hunt, p. 132)</span></p>
+      <p>Hunt: Bentham “came very close to explicitly developing the principle of marginal utility, which was later to become the cornerstone of neoclassical economics” (p. 131).</p>` },
+
+  { who: "smith",
+    says: "The law should fix a maximum rate of interest.",
+    reply: [
+      { ok: true, t: "On your own argument a free market sends capital where it is most productive, and no regulation of a free bargain can raise the wealth produced." },
+      { t: "A ceiling is right in principle, but yours is set too low: lenders to new and risky ventures need a higher rate, so the legal maximum should be raised.", fb: "That concedes Smith's principle. Your <em>Defence of Usury</em> (1787) argued against legal ceilings on interest, not for a different one." },
+      { t: "Interest rewards the lender's abstinence, a painful sacrifice of present enjoyment, and the law has no right to cut that reward below what he asks.", fb: "“Abstinence” is Nassau Senior's term, from his <em>Outline</em> of 1836 (Hunt, pp. 141, 147). It is not in your vocabulary of 1787." },
+      { t: "Interest is a tax that idle lenders levy on industry, so the law should go further than you propose and forbid it, as the old usury laws did.", fb: "That is the old prohibition of usury. Your pamphlet was a <em>Defence of Usury</em>, against legal ceilings on interest." } ],
+    steel: [
+      { ok: true, t: "That proves only that a ceiling cannot raise wealth. Your principle counts happiness, not wealth, and a law can cut wealth yet add to happiness.",
+        fb: "Your 1787 reply is about wealth produced; your principle is about happiness. The later Bentham of Hunt pp. 132–33 would have to weigh the law's pleasures and pains, not only its effect on output." },
+      { t: "A free market sends capital to the uses where it is most productive, and a ceiling on interest stops capital moving to the trades that need it most.", fb: "That is the argument you borrowed from Smith. It is your reply, not a point against it." },
+      { t: "Interest is income taken by those who merely own money from those who work, so a ceiling limits how much the owner can take from the producer.", fb: "That is the later claim of Thompson and Hodgskin about profits (Hunt, p. 140). It is a different argument, not a stronger form of Smith's." },
+      { t: "No regulation can raise the wealth produced, so a ceiling set above the market rate does no harm and may keep the occasional lender honest.", fb: "A ceiling above the market rate binds no one, so it is no ceiling at all. Your reply is untouched." } ],
+    words: `<p>“In Bentham's earlier writings, he accepted Smith's argument that a competitive free market would allocate productive resources to those industries in which they would be the most productive.” And: “Therefore no regulations nor any efforts whatsoever, either on the part of subjects or governors, can raise the quantity of wealth produced during a given period.” <span class="cite">(Hunt, p. 132)</span></p>
+      <p>Bentham wrote <em>Defence of Usury</em> (1787) while visiting his brother Samuel in Krichev, White Russia. It argued against legal ceilings on interest and addressed Adam Smith, who had supported a legal maximum rate.</p>` },
+
+  { who: "say",
+    says: "No one produces except to exchange his product for someone else's. Money is only the means. So a supply creates a demand of the same size. “Produce opens a vent for produce.” A glut of some goods means a shortage of others. There can be no general glut.",
+    reply: [
+      { ok: true, t: "Only while money returns to circulation. If frugality puts money “into a chest” and keeps it there, spending falls, and prices and production with it." },
+      { t: "A general glut is possible only when men are satiated and want no more, and the rich, who already have everything, reach that point first.", fb: "That is the only case for a glut Senior would allow, and he denied it (Hunt, p. 145). Your chest needs no satiety: men can want more and still keep money idle." },
+      { t: "Agreed: whoever saves money adds to the general mass of capital, so frugality employs just as much labour as spending does, and no glut can follow.", fb: "That was your early view, and Say's (Hunt, p. 132). By 1801 you had given it up." },
+      { t: "Your vent fails because prices are fixed by custom: when costs fall, prices do not, and goods go unsold for want of buyers.", fb: "In your chest prices fall (Hunt, p. 133), and Say's own account runs on price changes. Flexible prices are common ground." } ],
+    steel: [
+      { ok: true, t: "Why would a calculating man keep money idle when he could lend it at interest? Without a motive for holding money, the chest is a supposition.",
+        fb: "Your reply, as Hunt reports it, begins “Suppose” and gives no motive for holding money idle. Say's case rests on money being only “a means of facilitating exchange” (Hunt's words, p. 137). Your own picture of man as a calculator (pp. 129–31) seems to side with Say here." },
+      { t: "A glut of some goods is always matched by a shortage of others, so your general glut is only a jumble of partial gluts that prices will sort out.", fb: "That is Say's own account (pp. 137–38), and your chest answers it: hoarded money lowers spending on all goods at once." },
+      { t: "Falling prices are the cure, not the disease: once prices fall, the money still in circulation buys all that is produced, and no man stays idle.", fb: "Your chest already includes falling prices. Production falls with them, and profits and investment decline (Hunt's summary, p. 133)." },
+      { t: "If the government issues new money, prices will rise, so your remedy only trades idle men for dear bread and leaves the labourer no better off.", fb: "Your remedy replaces money taken out of circulation. Issued in that amount it restores spending without raising prices, as Act III of the Money in the Chest showed." } ],
+    words: `<p>“Suppose an increase in the habit of frugality,” he wrote. “Its first effect will be to diminish the mass of expenditure on consumption.” If the money “is for an indefinite time put into a chest and kept there,” prices and production fall; if the government increases the money in circulation, “then the money introduced … becomes a source of increasing wealth.” <span class="cite">(Hunt, p. 133)</span></p>
+      <p>Hunt names the economists who rejected Say's law: “Malthus, Bentham (in his later writings), Karl Marx, and John Maynard Keynes” (p. 137).</p>` },
+
+  { who: "senior",
+    says: "However unequally wealth is divided, “no person feels his whole wants to be adequately supplied.” And “the nature and urgency of each individual's wants are as various as the differences in individual character.” You cannot say that a pound taken from the rich man costs him less pleasure than it gives the labourer.",
+    reply: [
+      { ok: true, t: "His pleasure is not 50,000 times the labourer's, though his income is; even twice is “a liberal” allowance. So a pound moved to the labourer adds to the total." },
+      { t: "Pleasure cannot be measured in different breasts, so the legislator should leave the division of wealth to the free bargains that men make for themselves in the market.", fb: "That is Senior's conclusion, not your reply. Hunt says you believed pleasures could be numerically quantified so that we can “understand their value” (p. 130)." },
+      { t: "Then the legislator should make all incomes equal, since every pound moved from the rich to the poor adds more pleasure than it takes away.", fb: "You were “by no means an advocate of complete equality”: past a point, transfers would weaken the workers' inducement to labour (Hunt, p. 133)." },
+      { t: "The rich man has already bought all that money can buy, so another pound gives him no pleasure at all, while it feeds a labourer's family for a week.", fb: "That rests the case on satiety, the premise Senior denies outright. The passage Hunt quotes needs less: it asks only how many times greater the rich man's pleasure is." } ],
+    steel: [
+      { ok: true, t: "You set pleasures in two breasts on one scale. If wants vary as characters do, no observation shows whose loss is larger: the comparison is a judgment.",
+        fb: "Your reply assumes the very comparison Senior denies. In 1938 Lionel Robbins turned this objection into doctrine: comparisons of utility between persons are value judgments, not science." },
+      { t: "The rich man still wants more, so the pound taken from him costs him a real pleasure, and your transfer must count that loss against the labourer's gain.", fb: "Your reply already counts it: the loss is smaller, not zero. Wanting more does not show that he wants the next pound as much as the labourer does." },
+      { t: "Transfers past a certain point weaken the labourer's inducement to labour, so the output to be shared shrinks and your total of pleasure may fall.", fb: "That is your own limit on redistribution (p. 133), which you already allow. It is not Senior's point." },
+      { t: "Your ratio of pleasures is a guess, not an observation; the true ratio might be far higher, and then the transfer would gain far less than you suppose.", fb: "That still accepts a common scale and only disputes the number. Senior's point denies that any such number can be observed at all." } ],
+    words: `<p>“Take, on the other hand, the richest man in the country … But by how much—by how many times greater? Fifty thousand times? This is assuredly more than any man would take it upon himself to say. … Five times the labourer's seems a very large, not to say excessive allowance: even twice, a liberal one.” <span class="cite">(Bentham, quoted in Hunt, p. 133)</span></p>
+      <p>Hunt: two premises seem to underlie Bentham's belief, that people can become satiated and that utilities can be compared between people. “Senior explicitly denied both of them” (pp. 144–45).</p>` },
+
+  { who: "senior",
+    says: "Profit is the reward of abstinence, as wages are the reward of labour. “To abstain from the enjoyment which is in our power, or to seek distant rather than immediate results, are among the most painful exertions of the human will.” The capitalist must be paid for that pain.",
+    reply: [
+      { ok: true, t: "The legislator weighs consequences for everyone affected, not the actor's pain. Frugality that puts money “into a chest” lowers spending and production." },
+      { t: "Profit is no reward at all: capital is a matter of legal ownership, and its income is taken from the labour of the men who do the work.", fb: "That is the view of Hodgskin and Thompson in the 1820s (Hunt, pp. 140, 147), not yours." },
+      { t: "Agreed: waiting is painful, and as wages pay for the pain of labour, profit pays for the pain of waiting, so the legislator must protect both.", fb: "That simply concedes Senior's case. Your test is the consequences of an act for everyone affected, not the pains of the man who performs it." },
+      { t: "Profit rewards the productive power of capital: machines and stock produce utility just as labour does, and their owners are rightly paid for that productive service.", fb: "That is Say's “productive agencies” (Hunt, p. 135). Senior himself said it was not enough: “physical capital and capitalists were not the same” (p. 147)." } ],
+    steel: [
+      { ok: true, t: "Your chest covers only idle savings. Lent savings become capital, and on your own view no one bears a pain without reward: the lender must be paid to wait.",
+        fb: "Hunt notes that Senior, “like Bentham, thought that working was painful” (p. 147). The strongest Senior turns your premise against you. Hunt's own answer goes elsewhere: most capital is inherited, and capitalists enjoy making profits (p. 150)." },
+      { t: "Capitalists enjoy making profits and save from vanity, so whatever pain of waiting they bear is small beside the profits they receive for it.", fb: "That is Hunt's objection to Senior (p. 150). A steelman strengthens the opponent; this weakens him." },
+      { t: "Some savers lock their money in a chest instead of lending it, and their abstinence creates no capital and so deserves no reward at all.", fb: "That is your reply, not Senior's point." },
+      { t: "Capital is productive, so its owner earns a share of the product whatever he felt while saving; profit is simply the market price of a productive service rendered.", fb: "Senior said productivity was not enough: “physical capital and capitalists were not the same,” so he needed a human cost (Hunt, p. 147). This version is weaker than his own." } ],
+    words: `<p>“Aversion,” Bentham insisted, “is the emotion—the only emotion—which labour, taken by itself, is qualified to produce.” <span class="cite">(Hunt, p. 131)</span></p>
+      <p>Hunt: “using capital to make profit is simply defined as painful and the profit is justified by that pain” (p. 150).</p>` },
+
+  { who: "marx",
+    says: "“With the driest naiveté he takes the modern shopkeeper, especially the English shopkeeper, as the normal man.” And “the principle of utility was no discovery of Bentham.”",
+    reply: [
+      { ok: true, t: "My principle is not about Englishmen: “Nature has placed mankind under the governance of two sovereign masters, pain and pleasure.”" },
+      { t: "The principle of utility is my own discovery, and its reach is proved by the reform of law it makes possible in every country that adopts it.", fb: "You found it in 1769 in Hume, Helvétius, and Beccaria (Stanford Encyclopedia of Philosophy). On this point Marx is right." },
+      { t: "Shopkeepers are only one case. The pleasures of the poet and the scholar are of a higher kind, and my calculus gives them more weight than trade.", fb: "That is J. S. Mill's later amendment. For you, “prejudice apart, the game of push-pin is of equal value with the arts and sciences of music and poetry.”" },
+      { t: "My principle describes the English as they are; nations still ruled by custom and superstition will come to it as they grow commercial.", fb: "Your first sentence speaks of “mankind.” Hunt: you reduced “all human motivation, in all times and all places” to a single principle (p. 130)." } ],
+    steel: [
+      { ok: true, t: "The calculating, self-preferring man is what competition for profit makes of people. Calling him “mankind” asserts universality; it does not prove it.",
+        fb: "This is Hunt's reading in the opening pages of the chapter: features particular to capitalism, “perceived as general human conditions, existing in all societies, in all places and times” (p. 125)." },
+      { t: "Bentham was an attorney's son, and every theorist's picture of human nature is a portrait of his own class: the lawyer sees clients weighing costs and benefits.", fb: "This attacks where the theory came from, not whether it is true; a man of any class could be right. The strong form says why the principle is false." },
+      { t: "Most people act from habit, religion, or affection, not calculation, so the principle of utility fails as an account of how men choose.", fb: "You can absorb this: habit and affection work through pleasure and pain too, which “govern us in all we do.” The strong form asks where the calculating person comes from." },
+      { t: "Helvétius and others stated the principle of utility long before Bentham, so his claim to have founded a science on it is empty.", fb: "Marx makes this jab, and it is true, but who stated a principle first says nothing about whether it is true." } ],
+    words: `<p>“Nature has placed mankind under the governance of two sovereign masters, pain and pleasure. It is for them alone to point out what we ought to do, as well as to determine what we shall do.” <span class="cite">(Introduction, quoted in Hunt, p. 130)</span></p>
+      <p>Marx, <em>Capital</em>, vol. I (1867), ch. 24 §5, calls Bentham “the arch-Philistine, Jeremy Bentham, that insipid, pedantic, leather-tongued oracle” of nineteenth-century bourgeois common sense.</p>` },
+
+  { who: "mill",
+    says: "Some kinds of pleasure are higher in quality than others. “It is better to be a human being dissatisfied than a pig satisfied; better to be Socrates dissatisfied than a fool satisfied.”",
+    reply: [
+      { ok: true, t: "“Prejudice apart,” push-pin equals poetry. If poetry is worth more, it scores higher on duration, fecundity, or purity; no separate “quality” is needed." },
+      { t: "Agreed: some pleasures are nobler than others, and the legislator should count a pleasure of the mind as worth more than the same amount of the body's pleasure.", fb: "That is Mill's amendment. You put push-pin and poetry on one scale." },
+      { t: "Pleasures cannot be compared at all, so the legislator should not ask which is higher but leave each man to choose his own amusements.", fb: "That is closer to Senior. Hunt says you believed pleasures could be numerically quantified so that we can “understand their value” (p. 130)." },
+      { t: "The calculus counts the greater number, and since more men play push-pin than read poetry, push-pin must count for more than poetry.", fb: "You wrote that push-pin is “of equal value” with poetry, not greater. The value of each lot of pleasure counts as well as the number of persons." } ],
+    steel: [
+      { ok: true, t: "A man who would rather be “Socrates dissatisfied than a fool satisfied” chooses less pleasure over more, and no rescoring of poetry explains that choice.",
+        fb: "Your reply rescores the pleasures. It does not touch a preference for the life with less pleasure. That is why Mill's line is a real break with you, made by a man raised on your principles." },
+      { t: "Poetry is more fecund than push-pin: it leads to pleasures of thought and talk long after the reading, so it scores higher on your own list.", fb: "That is your reply, not Mill's point." },
+      { t: "Pigs and fools feel pleasure as keenly as Socrates does, so a calculus that counts only amounts of pleasure must rank the satisfied pig above the dissatisfied man.", fb: "Your reply answers this: if the man's pleasures last longer and lead to more, they score higher. The strong form grants the scores and points to a choice of less pleasure." },
+      { t: "Push-pin is a child's game, and a legislator who counts it with poetry will spend the public's money on trifles and let the arts decay.", fb: "This assumes the ranking it should prove. You wrote “prejudice apart” to rule out exactly this." } ],
+    words: `<p>Bentham, <em>The Rationale of Reward</em> (1825): “Prejudice apart, the game of push-pin is of equal value with the arts and sciences of music and poetry.”</p>
+      <p>J. S. Mill, <em>Utilitarianism</em> (1861 in <em>Fraser's</em>; book 1863), ch. 2: “It is better to be a human being dissatisfied than a pig satisfied; better to be Socrates dissatisfied than a fool satisfied.”</p>` },
+
+  { who: "hunt",
+    says: "Your reforms need a government with no narrow interests of its own: benevolent, impartial, equally interested in everyone. But governments are made of ordinary persons, egoists by “general human nature.” Will legislators gain more by serving the poor, or the rich?",
+    reply: [
+      { ok: true, t: "Then tie rulers to the ruled, as my <em>Plan of Parliamentary Reform</em> (1817) does: literate men vote, by secret ballot, in equal districts, every year.",
+        fb: "Hunt does not discuss this reply. It is built from Bentham's own program of 1817, which he followed with republicanism and the <em>Constitutional Code</em>." },
+      { t: "Legislators chosen for their learning and virtue will rise above private interest, as good judges do, and govern for the greatest number.", fb: "Hunt's point exactly: the government is “not made up of angels, or ‘philosopher kings’” (p. 134). And you held that “Self-preference has place everywhere” (p. 131)." },
+      { t: "Then the market must do the work alone: if government cannot be impartial, it should leave wealth where free exchange puts it.", fb: "That is your early view. It gives up every reform you argued for after 1801: new money against the chest, and transfers to the poor." },
+      { t: "A legislator's own pleasure lies in public applause, so his self-interest and the public interest coincide without any change in the law.", fb: "That assumes what Hunt doubts, that serving the poor pays a legislator better than serving the rich. And you held that “self-regarding interest is predominant over all other interests put together” (p. 131)." } ],
+    steel: [
+      { ok: true, t: "Voters can dismiss egoists, but egoists still ask who pays them more, the rich or the poor. A ballot does not change who can reward a legislator.",
+        fb: "Hunt asks “whether legislators were more likely to receive material benefits by promoting the interests of the poor or the interests of the rich” (p. 134). The ballot changes who votes, not who can pay." },
+      { t: "Honest men are rare, and a system that relies on electing them will fail whenever the voters choose badly, as voters often will.", fb: "Your reply does not rely on honest men; it ties egoists to voters. Hunt's question about who can reward them survives that design." },
+      { t: "Your own Panopticon was abandoned by the government in 1803, which shows that governments ignore reformers whenever it suits them.", fb: "True, but one abandoned contract shows little about whether a reformed legislature would serve the poor. Not the strongest form." },
+      { t: "Transfers from rich to poor weaken the inducement to labour, so a government that redistributes will shrink the wealth it means to share.", fb: "That is your own limit, which you already allow. Hunt's point is about who governs." } ],
+    words: `<p>“However, the government was not made up of angels, or ‘philosopher kings,’ but of ordinary persons, who, in accordance with ‘general human nature,’ were egoistic and interested in maximizing their own pleasure.” <span class="cite">(Hunt, p. 134)</span></p>
+      <p>Hunt calls this “an inadequacy that was to be pervasive in the neoclassical approach” (p. 134).</p>` },
+];
+
+const MAX = ROUNDS.length * 4, NEED = Math.ceil(MAX * 0.7);
+let r = 0, pts = 0;
+function meter() { $("meter").style.width = (pts / MAX * 100) + "%"; $("pts").textContent = `${pts} point${pts === 1 ? "" : "s"}`; }
+const score = misses => misses === 0 ? 2 : misses === 1 ? 1 : 0;
+const scoreNote = g => g === 2 ? "+2: first try." : g === 1 ? "+1: second try." : "+0: you got there, but the tribunal had stopped listening.";
+
+function round() {
+  const R = ROUNDS[r], p = P[R.who];
+  $("stage").innerHTML = `<div class="roundno">Challenge ${r + 1} of ${ROUNDS.length}</div>
+    <div class="speaker">
+      <div class="pic">${p.img ? `<img src="../images/${p.img}.png" alt="${p.name}">` : `<div class="monogram">${p.mono}</div>`}</div>
+      <div><div class="who">${p.name} <span>· ${p.note}</span></div><div class="bubble">${R.says}</div>
+        <div class="parts"><span id="pa" class="on">a · your reply</span><span id="pb">b · their strongest point</span></div></div>
+    </div><div id="reply"></div><div id="ra"></div><div id="steel"></div><div id="after"></div>`;
+  let m1 = 0, m2 = 0;
+  Learn.mcq($("reply"), { label: "(a) Your reply, Mr Bentham", q: "Choose the reply Bentham would give, in his own terms.",
+    choices: R.reply.map(c => Object.assign({ fb: "The tribunal nods." }, c)),
+    onMiss: () => { m1++; },
+    onSolve: () => {
+      const g1 = score(m1); pts += g1; meter();
+      $("pa").className = "done"; $("pb").className = "on";
+      $("ra").innerHTML = `<p class="muted" style="margin:0 0 4px;font-size:.9rem">${scoreNote(g1)}</p>`;
+      Learn.mcq($("steel"), { label: "(b) Steelman your opponent", q: "Now state the opponent's point in its strongest form: which version does your reply <em>not</em> answer?",
+        choices: R.steel, onMiss: () => { m2++; },
+        onSolve: () => {
+          const g2 = score(m2); pts += g2; meter();
+          $("pb").className = "done";
+          $("after").innerHTML = `<p class="muted" style="margin:0;font-size:.9rem">${scoreNote(g2)}</p>
+            <div class="words"><span class="lab">The record</span>${R.words}</div>
+            <button class="btn primary" id="next" style="margin-top:12px">${r + 1 < ROUNDS.length ? "Next challenger" : "The verdict"}</button>`;
+          $("next").onclick = () => { r++; r < ROUNDS.length ? round() : verdict(); };
+        } });
+      Learn.open($("steel"), true);
+    } });
+}
+
+function verdict() {
+  $("stage").innerHTML = `<div class="roundno">The verdict</div>
+    <div class="bubble">The course asks every writer one question: does market exchange harmonize our interests, or conceal a conflict between them? Where does Bentham land?</div>
+    <div id="vq"></div><div id="vout"></div>`;
+  Learn.mcq($("vq"), { label: "Your verdict", q: "",
+    choices: [
+      { ok: true, t: "Two places. Early, the free market allocates best and saving becomes capital; later, hoards idle men and inequality wastes pleasure, so the legislator must act.",
+        fb: "Both positions come from one principle, utility, read two ways." },
+      { t: "Harmony: even after 1801 he wanted government only to clear away obstacles, as when he attacked the usury laws, so that free exchange could serve everyone.", fb: "The attack on usury laws (1787) is the early Bentham. By 1801 he welcomed government interference whenever it brought the smallest advantage, proposed new money against the chest, and argued for transfers to the poor." },
+      { t: "Conflict between classes: the value that labour creates is divided among landlords, capitalists, and workers, and exchange hides who takes whose share.", fb: "That is the perspective Hunt finds in the labor theory of value of Smith and Ricardo (p. 127). Bentham founded value on utility. His worry is not class against class in production but a market that leaves men idle and pleasure unclaimed." },
+      { t: "Neither: political economy studies wealth, not happiness, so harmony and conflict are questions for the moralist and the legislator, not the economist.", fb: "That is Nassau Senior's position: the political economist's subject “is not Happiness, but Wealth” (Hunt, p. 142). Bentham's measure was happiness." } ],
+    onSolve: finish });
+  $("vq").querySelector(".ask-q").remove();
+}
+
+function finish() {
+  const pass = pts >= NEED;
+  $("vout").innerHTML = `<h2 style="margin-top:20px">Why he lands in two places</h2>
+    <p><strong>When each person calculates for himself,</strong> the market looks like harmony. Each trade adds to the pleasure of both sides, a free market allocates resources “in the most socially beneficial manner possible” (Hunt, p. 132), and saving turns into capital. That is the early Bentham, with Smith and Say.</p>
+    <p><strong>When the legislator adds up pleasures across persons,</strong> two facts break the harmony. The marginal utility of money diminishes, so a pound means more to the labourer than to the richest man. And money held idle in a chest leaves men without work. The market alone does not reach the greatest happiness, so “the hand of government” has work to do. That is the later Bentham.</p>
+    <div class="words"><span class="lab">Hunt, p. 134</span>“Thus, over Bentham's lifetime, there was a split or antagonism between his earlier extreme laissez-faire attitude and his later reformist attitude. This same split was to be reflected later in the neoclassical tradition, which was constructed on the foundation of Bentham's utilitarian philosophy.”</div>
+    <p style="margin-top:14px">Hunt's own verdict adds a third point: the reformist half rests on a government of impartial angels, which egoists cannot supply.</p>
+    <p>You scored <strong>${pts} of ${MAX}</strong>. ${pass ? "The tribunal finds that you can argue as Bentham and state your opponents fairly." : `The seal needs ${NEED}. Most misses come from slipping in another writer's idea (Senior's abstinence, Mill's higher pleasures, the labor theory) or from choosing a steelman your reply already answers. Go again.`}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">${pass ? `<a class="btn primary" href="exam.html">Next: The Examination →</a>` : ""}<button class="btn${pass ? "" : " primary"}" id="again">Face the tribunal again</button></div>`;
+  if (pass) Ledger.complete("g-tribunal", { pts });
+  $("again").onclick = () => { r = 0; pts = 0; meter(); round(); };
+  Learn.open($("vout"), true);
+}
+meter(); round();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play and Learn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .game-card { display: flex; flex-direction: column; padding: 0; overflow: hidden; text-decoration: none; color: var(--ink); transition: transform .15s, border-color .15s; position: relative; }
+    .game-card:hover { transform: translateY(-3px); color: var(--ink); border-color: var(--accent); }
+    .game-card.locked { opacity: .55; }
+    .game-card.locked:hover { transform: none; border-color: var(--rule); }
+    .game-art { height: 170px; display: grid; place-items: center; background: var(--paper-2); border-bottom: 1px solid var(--rule); }
+    .game-body { padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .game-body p { color: var(--ink-soft); margin: 0; font-size: .98rem; }
+    .game-body .teaches { font-size: .88rem; }
+    .game-body .btn { align-self: flex-start; margin-top: auto; }
+    .game-card svg { width: 160px; height: 130px; }
+    .game-card .lock-badge { position: absolute; top: 12px; right: 12px; background: var(--bg); }
+    .num { font: 400 2rem var(--f-script); color: var(--accent); line-height: 1; }
+    @media (max-width: 560px) { .exam-card { flex-direction: column !important; } .exam-card .game-art { border-right: none !important; border-bottom: 1px solid var(--rule) !important; padding: 12px !important; } }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Play and Learn</p>
+    <h1>Four games and an examination</h1>
+    <p class="lede">In each game the rules <em>are</em> Bentham's argument: you weigh pleasures on his seven circumstances, move money until the good it does runs out, and rescue a town whose savings have gone into a chest. They unlock in order, because each one needs the one before it.</p>
+  </header>
+
+  <div class="grid two" id="games">
+    <a class="card game-card" data-step="g-calculus" href="games/calculus.html">
+      <div class="game-art" aria-hidden="true">
+        <svg viewBox="0 0 160 130">
+          <line x1="80" y1="18" x2="80" y2="104" stroke="#dcb15f" stroke-width="3"/>
+          <line x1="28" y1="40" x2="132" y2="30" stroke="#dcb15f" stroke-width="3"/>
+          <line x1="28" y1="40" x2="16" y2="72" stroke="#b2c2b9"/><line x1="28" y1="40" x2="40" y2="72" stroke="#b2c2b9"/>
+          <line x1="132" y1="30" x2="120" y2="62" stroke="#b2c2b9"/><line x1="132" y1="30" x2="144" y2="62" stroke="#b2c2b9"/>
+          <path d="M12 72 h32 a16 9 0 0 1 -32 0z" fill="#7fd6b6"/>
+          <path d="M116 62 h32 a16 9 0 0 1 -32 0z" fill="#ef8a8a"/>
+          <rect x="62" y="104" width="36" height="8" rx="2" fill="#dcb15f"/>
+          <text x="28" y="98" text-anchor="middle" font-size="11" fill="#7fd6b6">pleasure</text>
+          <text x="132" y="88" text-anchor="middle" font-size="11" fill="#ef8a8a">pain</text>
+        </svg>
+      </div>
+      <div class="game-body">
+        <span class="num">i</span>
+        <h3>The Felicific Calculus</h3>
+        <p>Sit as Bentham's legislator and weigh real choices: a feast now or a pension later, a law that pains one man and pleases many. One new circumstance each round.</p>
+        <p class="teaches"><strong>You will discover:</strong> how intensity, duration, certainty, propinquity, fecundity, purity, and extent combine, and why the last of them was the one later economists dropped.</p>
+        <span class="btn primary">Play</span>
+      </div>
+    </a>
+
+    <a class="card game-card" data-step="g-purse" href="games/purse.html">
+      <div class="game-art" aria-hidden="true">
+        <svg viewBox="0 0 160 130">
+          <polyline points="14,110 30,60 50,44 75,36 105,31 146,28" fill="none" stroke="#7fd6b6" stroke-width="3"/>
+          <circle cx="30" cy="60" r="6" fill="#8fbdf0"/><circle cx="140" cy="28" r="6" fill="#f2b45a"/>
+          <text x="38" y="80" font-size="11" fill="#8fbdf0">labourer</text>
+          <text x="148" y="50" text-anchor="end" font-size="11" fill="#f2b45a">richest man</text>
+          <line x1="14" y1="112" x2="150" y2="112" stroke="#2c5047"/><line x1="14" y1="112" x2="14" y2="16" stroke="#2c5047"/>
+          <text x="150" y="124" text-anchor="end" font-size="9" fill="#b2c2b9">income</text>
+        </svg>
+      </div>
+      <div class="game-body">
+        <span class="num">ii</span>
+        <h3>The Labourer and the Richest Man</h3>
+        <p>Take Bentham's own guess about pleasure and wealth, then move money from the rich man to ten labourers. Find where the good stops, then see the same chart through Senior's eyes.</p>
+        <p class="teaches"><strong>You will discover:</strong> diminishing marginal utility of money, why it argues for redistribution, why Bentham still stopped short of equality, and why later economists refused to compare utilities at all.</p>
+        <span class="btn primary">Play</span>
+      </div>
+    </a>
+
+    <a class="card game-card" data-step="g-chest" href="games/chest.html">
+      <div class="game-art" aria-hidden="true">
+        <svg viewBox="0 0 160 130">
+          <rect x="44" y="58" width="72" height="44" rx="4" fill="#5a3b22" stroke="#dcb15f" stroke-width="2"/>
+          <path d="M44 58 q36 -26 72 0" fill="#6b4729" stroke="#dcb15f" stroke-width="2"/>
+          <rect x="74" y="70" width="12" height="14" rx="2" fill="#dcb15f"/>
+          <circle cx="30" cy="40" r="7" fill="#d9cfbd"/><circle cx="50" cy="26" r="7" fill="#d9cfbd"/><circle cx="70" cy="34" r="7" fill="#d9cfbd"/>
+          <polyline points="100,26 116,34 132,44 148,58" fill="none" stroke="#ef8a8a" stroke-width="3"/>
+          <text x="148" y="76" text-anchor="end" font-size="10" fill="#ef8a8a">output</text>
+        </svg>
+      </div>
+      <div class="game-body">
+        <span class="num">iii</span>
+        <h3>The Money in the Chest</h3>
+        <p>First believe, with young Bentham and Say, that every saved pound becomes capital. Then watch frugality turn into a slump, and advise the government how much money to issue, year by year.</p>
+        <p class="teaches"><strong>You will discover:</strong> why later Bentham rejected Say's law, what single assumption separates them, and how close he came to arguments made by Malthus and Keynes.</p>
+        <span class="btn primary">Play</span>
+      </div>
+    </a>
+
+    <a class="card game-card" data-step="g-tribunal" href="games/tribunal.html">
+      <div class="game-art" aria-hidden="true">
+        <svg viewBox="0 0 160 130">
+          <rect x="20" y="88" width="120" height="10" fill="#23493f"/>
+          <rect x="60" y="40" width="40" height="48" fill="#1a3a33" stroke="#dcb15f"/>
+          <circle cx="80" cy="30" r="10" fill="#f2ebd9"/>
+          <circle cx="32" cy="70" r="8" fill="#b2c2b9"/><circle cx="128" cy="70" r="8" fill="#b2c2b9"/>
+          <circle cx="16" cy="78" r="7" fill="#b2c2b9" opacity=".6"/><circle cx="144" cy="78" r="7" fill="#b2c2b9" opacity=".6"/>
+          <path d="M70 58 h20 M70 66 h20 M70 74 h14" stroke="#dcb15f" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="game-body">
+        <span class="num">iv</span>
+        <h3>The Tribunal of Utility</h3>
+        <p>You are Bentham. Smith, Say, Senior, Hunt, Marx, and J. S. Mill each bring a charge. Answer in Bentham's own terms, then state their case more strongly than they did.</p>
+        <p class="teaches"><strong>You will discover:</strong> where Bentham stands on value, gluts, inequality, and government, and why he lands on both sides of the course question.</p>
+        <span class="btn primary">Play</span>
+      </div>
+    </a>
+  </div>
+
+  <a class="card game-card exam-card" data-step="exam" href="games/exam.html" style="margin-top:22px;flex-direction:row;align-items:center">
+    <div class="game-art" aria-hidden="true" style="height:auto;align-self:stretch;border-bottom:none;border-right:1px solid var(--rule);padding:0 18px">
+      <svg viewBox="0 0 160 130" style="width:120px"><rect x="34" y="16" width="92" height="100" rx="3" fill="#f2ebd9"/><g stroke="#142e28" stroke-width="3"><path d="M48 40h64M48 56h64M48 72h40"/></g><circle cx="104" cy="96" r="14" fill="#dcb15f"/><path d="M98 108 l-4 18 l10 -6 l10 6 l-4 -18" fill="#dcb15f"/></svg>
+    </div>
+    <div class="game-body">
+      <h3>The Examination</h3>
+      <p>Twelve questions, one attempt each, with numbers drawn fresh every time. Ten right earns a printable certificate. Opens after all four games and the Key Ideas.</p>
+    </div>
+  </a>
+</main>
+<script src="js/site.js"></script>
+<script>
+  document.querySelectorAll("[data-step]").forEach(card => {
+    const id = card.dataset.step, st = Ledger.isDone(id) ? "done" : Ledger.isOpen(id) ? "open" : "locked";
+    card.classList.toggle("locked", st === "locked");
+    card.insertAdjacentHTML("beforeend", `<span class="lock-badge ${st}">${{ done: "✓ Sealed", open: "Open", locked: "Locked" }[st]}</span>`);
+    if (st === "locked") {
+      const need = Ledger.missing(id).map(n => Ledger.step(n).label).join(", ");
+      card.title = "Earn first: " + need;
+      const b = card.querySelector(".btn"); if (b) { b.textContent = "Locked: finish " + need; b.classList.remove("primary"); }
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jeremy Bentham</title>
+  <meta name="description" content="Jeremy Bentham (1748–1832): learn the felicific calculus, diminishing marginal utility, and his break with laissez-faire by working them out yourself.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Pinyon+Script&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hook { max-width: 760px; margin: 0 auto; }
+    .hook .choices { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .rules { counter-reset: r; list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .rules li { counter-increment: r; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius); padding: 18px 18px 18px 58px; position: relative; font-size: .98rem; color: var(--ink-soft); }
+    .rules li::before { content: counter(r); position: absolute; left: 18px; top: 10px; font: 400 2.2rem var(--f-script); color: var(--accent); }
+    .rules li b { color: var(--ink); display: block; font-family: var(--f-display); font-size: 1.2rem; }
+
+    .question-of-course { max-width: 760px; margin: 0 auto; text-align: center; }
+    .question-of-course blockquote { font: italic 500 clamp(1.4rem, 2.6vw, 1.9rem)/1.3 var(--f-display); color: var(--ink); margin: 0 0 12px; }
+
+    .path { display: grid; gap: 10px; }
+    .stop { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: center; padding: 14px 18px; text-decoration: none; color: var(--ink); }
+    .stop:hover { border-color: var(--accent); color: var(--ink); }
+    .stop .n { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 700 1rem var(--f-display); border: 2px solid var(--rule); color: var(--ink-soft); }
+    .stop.done .n { background: var(--right); border-color: var(--right); color: #0e211d; }
+    .stop.open .n { border-color: var(--accent); color: var(--accent); }
+    .stop.locked { opacity: .55; pointer-events: none; }
+    .stop h3 { margin: 0; font-size: 1.25rem; }
+    .stop p { margin: 0; font-size: .92rem; color: var(--ink-soft); }
+    @media (max-width: 520px) { .stop { grid-template-columns: 36px 1fr; } .stop .lock-badge { display: none; } }
+    .path-group { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .16em; font-size: .8rem; font-weight: 700; color: var(--ink-soft); margin: 18px 0 2px; }
+    .reset { background: none; border: none; color: var(--ink-soft); font: .85rem var(--f-body); text-decoration: underline; cursor: pointer; padding: 0; }
+  </style>
+</head>
+<body>
+<main>
+  <section class="wrap hero">
+    <div>
+      <h1 class="hero-name">Jeremy Bentham</h1>
+      <p class="hero-tagline">— the accountant of pleasure and pain —</p>
+      <p class="hero-dates">1748 · 1832</p>
+      <p class="hero-blurb">
+        A lawyer who never practised and spent sixty years trying to make law and government into a science.
+        He reduced every human motive to pleasure and pain, proposed to measure them, and so laid the
+        philosophical floor that neoclassical economics was later built on. Then he followed his own logic to
+        conclusions his heirs did not want: that a pound does more good in a poor man's hand, and that saving
+        can leave men out of work.
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#start">Start here</a>
+        <a class="btn" href="play.html">Play and Learn</a>
+      </div>
+    </div>
+    <figure class="hero-portrait">
+      <img src="images/bentham-hero.jpg" alt="Portrait of Jeremy Bentham, white-haired, seated in a dark fur-trimmed coat beside a table of books" width="720" height="940">
+      <figcaption>Henry William Pickersgill, exhibited 1829</figcaption>
+    </figure>
+  </section>
+
+  <section class="wrap" id="start" style="scroll-margin-top:90px">
+    <p class="ornament">✦ ✦ ✦</p>
+    <div class="hook">
+      <p class="eyebrow center">One question before anything else</p>
+      <div id="hook"></div>
+      <p class="muted center" id="hook-after" style="font-size:.95rem"></p>
+    </div>
+  </section>
+
+  <section class="wrap" style="margin-top:56px">
+    <div class="question-of-course">
+      <p class="eyebrow">The question this course asks of every writer</p>
+      <blockquote>Does market exchange harmonize our interests, or conceal a conflict between them?</blockquote>
+      <p class="muted">Bentham gives two answers. Young, he trusted the market to do the most good. Older, he saw two ways it could fail: money hoarded instead of spent, and wealth piled where it gives the least pleasure. By the end of this site you should be able to say why one principle led him to both.</p>
+    </div>
+  </section>
+
+  <section class="wrap" style="margin-top:56px">
+    <h2 class="center">How this site works</h2>
+    <ol class="rules">
+      <li><b>You answer before you read.</b>Every idea stays closed until you commit to an answer. Guessing is fine, because the guess is what you learn from.</li>
+      <li><b>Wrong answers get explained.</b>A wrong choice is struck out and you are told what it gets wrong. You keep going until you can see why the right answer is right.</li>
+      <li><b>Games unlock in order.</b>Each game builds on the last. The final Examination uses fresh numbers every time, so nobody can pass it by memorizing.</li>
+    </ol>
+  </section>
+
+  <section class="wrap" id="ledger" style="margin-top:56px;scroll-margin-top:90px">
+    <h2>Your ledger</h2>
+    <p class="muted" id="ledger-line"></p>
+    <div class="path" id="path"></div>
+    <p style="margin-top:14px"><button class="reset" id="reset">Clear my ledger and start over</button></p>
+  </section>
+</main>
+<script src="js/site.js"></script>
+<script src="js/learn.js"></script>
+<script>
+  // --- the opening question; it comes back after The Labourer and the Richest Man ---
+  const said = Ledger.note("hook");
+  const hookAfter = document.getElementById("hook-after");
+  const answers = {
+    k50000: "50,000 times as much.",
+    k1000: "About 1,000 times as much.",
+    kfew: "A few times as much, at most.",
+    knone: "There is no way to compare them.",
+  };
+  function afterText(k) {
+    return Ledger.isDone("g-purse")
+      ? `You first answered: “${answers[k]}” You have since played <a href="games/purse.html">The Labourer and the Richest Man</a>, so you can say what Bentham guessed, what it implies for taxing the rich, and why Senior refused to answer at all.`
+      : `You answered: “${answers[k]}” Hold on to that. Bentham asked this exact question, and you will test his answer in <a href="games/purse.html">The Labourer and the Richest Man</a>.`;
+  }
+  const hookEl = document.getElementById("hook");
+  hookEl.classList.add("ask");
+  hookEl.innerHTML = `<div class="ask-label">Your first guess</div>
+    <div class="ask-q">A <span class="k-poor">labourer</span> has a bare but sure subsistence. The <span class="k-rich">richest man in the country</span>
+    has an income <strong>50,000 times</strong> as great. How much more pleasure does the rich man have than the labourer?</div>
+    <div class="choices">${Object.entries(answers).map(([k, t]) => `<button type="button" data-k="${k}">${t}</button>`).join("")}</div>`;
+  hookEl.querySelectorAll("button").forEach(b => {
+    if (said === b.dataset.k) b.classList.add("right");
+    b.onclick = () => {
+      Ledger.note("hook", b.dataset.k);
+      hookEl.querySelectorAll("button").forEach(x => x.classList.toggle("right", x === b));
+      hookAfter.innerHTML = afterText(b.dataset.k);
+    };
+  });
+  if (said) hookAfter.innerHTML = afterText(said);
+
+  // --- the ledger path ---
+  const BLURB = {
+    "about": "His life in five short chapters, each opened by a question.",
+    "ideas": "Ten ideas. Each one opens only after you solve its puzzle.",
+    "timeline": "Put his world in order, then explore it year by year.",
+    "critics": "Name the doctrine each critic and heir attacked or took over.",
+    "quotes": "Finish his sentences from the logic, not from memory.",
+    "model": "The calculus, the utility of money, and the chest, with sliders and three challenges.",
+    "g-calculus": "Weigh real choices on Bentham's seven circumstances, one circumstance at a time.",
+    "g-purse": "Move money from the richest man to the labourers and find where the good stops.",
+    "g-chest": "Watch frugality become a slump, then advise the government how much money to issue.",
+    "g-tribunal": "Argue as Bentham against Smith, Say, Senior, Mill, Marx, and Hunt, then make their case for them.",
+    "exam": "Fresh numbers every time. Pass it to earn the Benthamite certificate.",
+  };
+  function drawPath() {
+    const n = Ledger.count(), N = Ledger.STEPS.length;
+    document.getElementById("ledger-line").textContent = n === 0
+      ? "Nothing earned yet. Every page below has a seal to earn. Your progress is kept in this browser only."
+      : n === N ? "Every seal earned. You can now explain Bentham in his own terms."
+      : `${n} of ${N} seals earned. Your progress is kept in this browser only.`;
+    const groups = [["Read by answering", ["about", "ideas", "timeline", "critics", "quotes", "model"]],
+                    ["Play, in order", ["g-calculus", "g-purse", "g-chest", "g-tribunal", "exam"]]];
+    document.getElementById("path").innerHTML = groups.map(([g, ids]) =>
+      `<div class="path-group">${g}</div>` + ids.map(id => {
+        const s = Ledger.step(id), i = Ledger.STEPS.indexOf(s) + 1;
+        const st = Ledger.isDone(id) ? "done" : Ledger.isOpen(id) ? "open" : "locked";
+        const badge = { done: "Sealed", open: "Open", locked: "Locked" }[st];
+        return `<a class="card stop ${st}" href="${s.href}">
+          <span class="n">${st === "done" ? "✓" : i}</span>
+          <span><h3>${s.label}</h3><p>${BLURB[id]}</p></span>
+          <span class="lock-badge ${st}">${badge}</span></a>`;
+      }).join("")).join("");
+  }
+  drawPath();
+  Ledger.onChange(drawPath);
+  const resetBtn = document.getElementById("reset");
+  resetBtn.onclick = () => {
+    if (!resetBtn.dataset.armed) {   // first click arms, second click clears
+      resetBtn.dataset.armed = "1";
+      resetBtn.textContent = "Click again to erase every seal";
+      setTimeout(() => { delete resetBtn.dataset.armed; resetBtn.textContent = "Clear my ledger and start over"; }, 4000);
+      return;
+    }
+    delete resetBtn.dataset.armed;
+    resetBtn.textContent = "Clear my ledger and start over";
+    Ledger.reset();
+    hookEl.querySelectorAll("button").forEach(x => x.classList.remove("right"));
+    hookAfter.textContent = "";
+  };
+</script>
+</body>
+</html>
